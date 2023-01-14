@@ -4,7 +4,8 @@
       "name": "myTimer",
       "type": "timerTrigger",
       "direction": "in",
-      "schedule": "0 0 */12 * * *"
+      "schedule": "0 */5 * * * *"
     }
-  ]
+  ],
+  "scriptFile": "../dist/Reserve/index.js"
 }
