@@ -24,7 +24,6 @@ model Reservation{
 
   room Room @relation(fields: [roomId], references: [id])
   roomId Int
-  roomName String
 
   user User @relation(fields: [userId], references: [id])
   userId Int

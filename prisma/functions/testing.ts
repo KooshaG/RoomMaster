@@ -1,14 +1,11 @@
 import { PrismaClient } from '@prisma/client'
+import { deleteUser } from './userFuncs';
+
 
 const prisma = new PrismaClient();
 
 const main = async () => {
-  const user = await prisma.user.create({
-    data:{
-      username: 'test',
-      password: 'user'
-    }
-  })
+  const user = await deleteUser(prisma, {id: 1})
   console.log(user);
 }
 
