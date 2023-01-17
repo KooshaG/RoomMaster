@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@prisma/client": "^4.8.1",
+    "node-html-parser": "^6.1.4",
     "superagent": "^8.0.6"
   }
 }

@@ -34,6 +34,7 @@ model Room{
   name String @unique
   tech Boolean
   priority Int
+  eid Int @unique
   seats Boolean?
 
   reservations Reservation[]

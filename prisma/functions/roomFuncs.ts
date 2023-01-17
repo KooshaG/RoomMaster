@@ -1,11 +1,12 @@
 import { PrismaClient } from '@prisma/client'
 
-export const createRoom = async (client: PrismaClient, args: { name: string, tech: boolean, priority: number, seats?: boolean }) => {
+export const createRoom = async (client: PrismaClient, args: { name: string, tech: boolean, priority: number, eid: number, seats?: boolean }) => {
   return await client.room.create({
     data: {
       name: args.name,
       tech: args.tech,
       priority: args.priority,
+      eid: args.eid,
       seats: args.seats
     }
   })
@@ -13,7 +14,7 @@ export const createRoom = async (client: PrismaClient, args: { name: string, tec
 
 export const updateRoom = async (
   client: PrismaClient, 
-  args: { id: number, name?: string, tech?: boolean, priority?: number, seats?: boolean }
+  args: { id: number, name?: string, tech?: boolean, priority?: number, eid?: number, seats?: boolean }
   ) => {
     return await client.room.update({
       where: { id: args.id },
@@ -21,6 +22,7 @@ export const updateRoom = async (
         name: args.name,
         tech: args.tech,
         priority: args.priority,
+        eid: args.eid,
         seats: args.seats
       }
     })
