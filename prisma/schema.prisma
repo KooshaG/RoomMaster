@@ -41,7 +41,7 @@ model Room{
 
 model ReservationRequest{
   id Int @id @default(autoincrement())
-  dow Int
+  dow String
   iso_weekday Int
   slots30mins Int
   startTime String
