@@ -1,7 +1,10 @@
-import { User, Room, ReservationRequest } from '@prisma/client'
+import { User, Room, ReservationRequest, PrismaClient } from '@prisma/client'
 import superagent = require('superagent')
 import HTMLParser from 'node-html-parser'
 import { RoomAvailability } from './Types'
+import { getAllRoom } from '../prisma/functions/roomFuncs'
+
+const prisma = new PrismaClient()
 
 const mockUser: User = {
   id: 4,
@@ -22,13 +25,16 @@ const mockReservationRequest: ReservationRequest = {
 
 
 const reserve = async () => {
-  const days = reservationDaysInTwoWeeksFromNow(mockReservationRequest)
+  const rooms = await getAllRoom(prisma);
+  const days = reservationDaysInTwoWeeksFromNow(mockReservationRequest);
   days.forEach((day) => {
-    console.log(day.toDateString())
+    console.log(day.toDateString());
   })
-  const thing = await getAvailabilityArray(days[0])
-  console.log(thing[0])
-  console.log(thing.length)
+  const thing = await getAvailabilityArray(days[0]);
+  console.log(thing[0]);
+  console.log(thing.length);
+  const room1 = getRoomAvailabilityArray(thing, rooms[0])
+  console.log(room1)
 }
 
 const reservationDaysInTwoWeeksFromNow = (reservationRequest: ReservationRequest) => {
@@ -88,7 +94,9 @@ const getAvailabilityArray = async (date: Date, LID = 2161) => {
 }
 
 const getRoomAvailabilityArray = (availabilityArray: RoomAvailability[], room: Room) => {
-  
+  return availabilityArray.filter(availability => { return availability.eid === room.eid })
 }
 
 reserve()
+
+prisma.$disconnect()
