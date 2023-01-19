@@ -6,6 +6,8 @@ import { getAllRoom } from "../prisma/functions/roomFuncs";
 
 const prisma = new PrismaClient();
 
+const LID = 2161;
+
 const mockUser: User = {
   id: 4,
   username: "hi",
@@ -35,8 +37,12 @@ const reserve = async () => {
   console.log(isRoomAvailableInTime(room1, mockReservationRequest));
   rooms.forEach((room) => {
     const roomAvailability = getRoomAvailabilityArray(thing, room);
-    console.log(isRoomAvailableInTime(roomAvailability, mockReservationRequest));
+    const pendingReservation = isRoomAvailableInTime(roomAvailability, mockReservationRequest)
+    if (pendingReservation) {
+      console.log(createFormForRequest(pendingReservation))
+    }
   })
+
 };
 
 const reservationDaysInTwoWeeksFromNow = (
@@ -143,6 +149,23 @@ const isRoomAvailableInTime = (
   if (consecutiveSlots === 0) return slotsInTime;
   else return false
 };
+
+const createFormForRequest = (slots: RoomAvailability[]) => {
+  let form = {
+    "libAuth": "true",
+    "blowAwayCart": "true",
+    "method": 14,
+    "returnUrl": `/r/accessible?lid=${LID}&gid=5032&zone=0&space=0&capacity=2&accessible=0&powered=0`
+  }
+  slots.forEach((slot, index) => {
+    Object.keys(slot).forEach(key => {
+      form[`bookings[${index}][${key}]`] = slot[key]
+    });
+  })
+  return form
+}
+
+
 
 reserve();
 
