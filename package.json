@@ -22,6 +22,7 @@
     "@prisma/client": "^4.8.1",
     "@types/superagent": "^4.1.16",
     "node-html-parser": "^6.1.4",
+    "puppeteer": "^20.1.0",
     "superagent": "^8.0.9"
   }
 }

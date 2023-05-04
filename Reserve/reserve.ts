@@ -4,6 +4,8 @@ import HTMLParser from "node-html-parser";
 import { RoomAvailability } from "./Types";
 import { getAllRoom } from "../prisma/functions/roomFuncs";
 import { User, Room, ReservationRequest, PrismaClient } from "@prisma/client";
+import puppeteer from "puppeteer";
+import type { Page, Browser } from "puppeteer";
 
 const prisma = new PrismaClient();
 
@@ -25,29 +27,35 @@ const mockReservationRequest: ReservationRequest = {
   userId: 4,
 };
 
-
-
 let debug: Context | Console;
 
 const reserve = async (context: Context | Console = console) => {
   debug = context;
   const rooms = await getAllRoom(prisma);
+  const browser = await puppeteer.launch({ headless: "new" });
+  const page = await browser.newPage();
+
   const days = reservationDaysInTwoWeeksFromNow(mockReservationRequest);
   const thing = await getAvailabilityArray(days[1]);
-  let availableRooms: RoomAvailability[][] = []
-  rooms.forEach(async (room) => {
-    debug.log(`Room ${room.name}`)
-    const roomAvailability = getRoomAvailabilityArray(thing, room);
+  let availableRoom: RoomAvailability[];
+
+  for (let i = 0; i < rooms.length; i++) {
+    debug.log(`Room ${rooms[i].name}`);
+    const roomAvailability = getRoomAvailabilityArray(thing, rooms[i]);
     const pendingReservation = isRoomAvailableInTime(
       roomAvailability,
       mockReservationRequest
     );
     if (pendingReservation) {
-      availableRooms.push(pendingReservation)
+      availableRoom = pendingReservation;
+      debug.log(`${rooms[i].name} is available!`);
+      break;
     }
-  });
-  console.log((await makeRequest(availableRooms[0])).text)
+  }
+  console.log(await makeRequest(availableRoom, page));
   debug.log(daysSinceEpoch());
+
+  setTimeout(async () => await browser.close(), 10000);
 };
 
 const reservationDaysInTwoWeeksFromNow = (
@@ -156,10 +164,12 @@ const isRoomAvailableInTime = (
       // slot is between the start and end times we want
       consecutiveSlots--;
       slotsInTime.push(availability);
-      debug.log(`${start.toLocaleTimeString()} > ${slotStartTime.toLocaleTimeString()} > ${end.toLocaleTimeString()}`)
+      debug.log(
+        `${start.toLocaleTimeString()} > ${slotStartTime.toLocaleTimeString()} > ${end.toLocaleTimeString()}`
+      );
     } else {
       // slot not in time, reset the counter, we don't need to reset the array because it won't be possible for us to get 2 sets of availabilies that are within time
-      debug.log(`${slotStartTime.toLocaleTimeString()}`)
+      debug.log(`${slotStartTime.toLocaleTimeString()}`);
       consecutiveSlots = reservationRequest.slots30mins;
     }
   }
@@ -202,68 +212,74 @@ const HEADERS = {
   Referer: "https://concordiauniversity.libcal.com/reserve/webster",
 };
 
-const LIBCAL_AUTH_REGEX_CHECK = new RegExp(/<h2>Redirecting \.\.\.<\/h2>/g)
+const LIBCAL_AUTH_REGEX_CHECK = new RegExp(/<h2>Redirecting \.\.\.<\/h2>/g);
+const LIBCAL_SUBMIT_TIMES_REGEX_CHECK = new RegExp(/Booking Details -/);
 
-const makeRequest = async (slotsToReserve: RoomAvailability[]) => {
-  const getAuth = async (authCheckResText: string, agent: superagent.SuperAgentStatic & superagent.Request) => {
-    let root = HTMLParser.parse(authCheckResText)
-    const inputs = root.querySelector('#autoSAML').getElementsByTagName('input');
-    
-    let data: Record<string,string> = {}
-    inputs.forEach(input => {
-      data[input.getAttribute('name')] = input.getAttribute('value')
-    })
-    const libcalCookieAdderUrl = root.querySelector('#autoSAML').getAttribute('action')
-    const libcalCookieAdderRes = await agent.get(libcalCookieAdderUrl).set(HEADERS).query(data)
-    // console.log(libcalCookieAdderRes.text)
-    root = HTMLParser.parse(libcalCookieAdderRes.text)
-    data = {
-      UserName: "k_gholip@live.concordia.ca",
-      Password: "GmzFc3H0nD1",
-      AuthMethod: "FormsAuthentication"
-    }
-    const microsoftAuthUrl = `${CONCORDIA_AUTH_URL}${root.querySelector("#loginForm").getAttribute("action")}`
-    const microsoftAuthRes = await agent.post(microsoftAuthUrl).set(HEADERS).send(new URLSearchParams(data).toString())
-    
-    root = HTMLParser.parse(microsoftAuthRes.text)
-    const concordiaAuthLinkUrl = root.getElementsByTagName('form')[0].getAttribute('action')
-    const inputs2 = root.getElementsByTagName('input')
-    data = {}
-    inputs2.forEach(input => {
-      if(input.getAttribute('type') === 'hidden'){
-        data[input.getAttribute('name')] = input.getAttribute('value')
-      }
-    })
-    console.log(concordiaAuthLinkUrl)
-    console.log(data)
-    try {
-      const finalRes = await agent.post(concordiaAuthLinkUrl).set(HEADERS).send(new URLSearchParams(data).toString());
-      console.log(finalRes.text);
-      
-    }
-    catch (err) {
-      // console.log('AUTH FAILED')
-      // console.log('error')
-      console.log(err)
-    }
+const makeRequest = async (slotsToReserve: RoomAvailability[], page: Page) => {
+  const getAuth = async (page: Page) => {
+    const userNameInput = await page.waitForSelector("#userNameInput");
+    const passwordInput = await page.waitForSelector("#passwordInput");
+    const submitButton = await page.waitForSelector("#submitButton");
 
-  }
+    await userNameInput.type("");
+    await passwordInput.type("");
+    await submitButton.click({ delay: 300 });
 
-  const agent = superagent.agent()
+    await page.waitForNavigation({ waitUntil: "networkidle0" });
 
-  const createCart = `${CONCORDIA_LIBCAL_URL}/ajax/space/createcart`;
+    const res = await page.content();
+
+    return res;
+  };
+
+  const createCartUrl = `${CONCORDIA_LIBCAL_URL}/ajax/space/createcart`;
   const data = new URLSearchParams(createFormForRequest(slotsToReserve)); // bro 2 weeks for this
-  const createCartRes = await agent.post(createCart).set(HEADERS).send(data.toString())
-  
-  const authCheckUrl = `${CONCORDIA_LIBCAL_URL}${createCartRes.body['redirect']}`
-  const authCheckRes = await agent.get(authCheckUrl).set(HEADERS)
 
-  const isNotAuth = !!authCheckRes.text.match(LIBCAL_AUTH_REGEX_CHECK) // If there is a match here, we are getting redirected to the auth check page
-  if(isNotAuth){
-    await getAuth(authCheckRes.text, agent)
+  await page.setRequestInterception(true);
+  page.once("request", (request) => {
+    request.continue({
+      method: "POST",
+      postData: data.toString(),
+      headers: {
+        ...HEADERS,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+  });
+  let content: string = "";
+  await page.goto(createCartUrl);
+  await page.setRequestInterception(false);
+  const createCartRes = await page.content();
+  const createCartRedirect = `${CONCORDIA_LIBCAL_URL}${
+    createCartRes.match(/{"success":true,"redirect":"(.*)"}/)[1]
+  }`;
+
+  await page.goto(createCartRedirect);
+  content = await page.content();
+  const isNotAuth =
+    !!content.match(LIBCAL_AUTH_REGEX_CHECK) ||
+    !!content.match(/<title>Sign In<\/title>/); // If there is a match here, we are getting redirected to the auth check page
+  if (isNotAuth) {
+    await getAuth(page);
+    console.log("auth time :)");
   }
-  return authCheckRes
 
+  const confirmationPage = await page.content();
+  const atConfirmationPage = !!confirmationPage.match(
+    LIBCAL_SUBMIT_TIMES_REGEX_CHECK
+  );
+  if (!atConfirmationPage) {
+    throw new Error("Not at confirmation page");
+  }
+
+  const submitButton = await page.waitForSelector("#btn-form-submit");
+  await submitButton.click({ delay: 300 });
+
+  page.goto(
+    "https://concordiauniversity.libcal.com/r/accessible/availability?lid=2161&zone=0&gid=5032&capacity=2&space=0"
+  );
+
+  return "done :)";
 };
 
 reserve(console);
