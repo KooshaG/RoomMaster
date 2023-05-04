@@ -7,7 +7,8 @@
     "watch": "tsc -w",
     "prestart": "npm run build",
     "start": "func start",
-    "test": "echo \"No tests yet...\""
+    "test": "echo \"No tests yet...\"",
+    "local": "tsc && node dist/Reserve/reserve.js"
   },
   "devDependencies": {
     "@azure/functions": "^3.0.0",
@@ -19,7 +20,8 @@
   },
   "dependencies": {
     "@prisma/client": "^4.8.1",
+    "@types/superagent": "^4.1.16",
     "node-html-parser": "^6.1.4",
-    "superagent": "^8.0.6"
+    "superagent": "^8.0.9"
   }
 }
