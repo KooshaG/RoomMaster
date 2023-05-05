@@ -3,59 +3,75 @@ import superagent = require("superagent");
 import HTMLParser from "node-html-parser";
 import { RoomAvailability } from "./Types";
 import { getAllRoom } from "../prisma/functions/roomFuncs";
+import { allUser } from "../prisma/functions/userFuncs";
 import { User, Room, ReservationRequest, PrismaClient } from "@prisma/client";
 import puppeteer from "puppeteer";
 import type { Page, Browser } from "puppeteer";
+import { reservationRequestByUser } from "../prisma/functions/reservationRequestFuncs";
+import { createReservation, getReservation } from "../prisma/functions/reservationFuncs";
 
 const prisma = new PrismaClient();
 
 const LID = 2161;
 
-const mockUser: User = {
-  id: 4,
-  username: "hi",
-  password: "nice",
-};
-
-const mockReservationRequest: ReservationRequest = {
-  id: 1,
-  dow: "Tuesday",
-  iso_weekday: 2,
-  startTime: "18:30:00",
-  endTime: "20:30:00",
-  slots30mins: 4,
-  userId: 4,
-};
-
 let debug: Context | Console;
 
 const reserve = async (context: Context | Console = console) => {
+  // initialize constants
   debug = context;
   const rooms = await getAllRoom(prisma);
-  const browser = await puppeteer.launch({ headless: "new" });
-  const page = await browser.newPage();
+  const users = await allUser(prisma)
 
-  const days = reservationDaysInTwoWeeksFromNow(mockReservationRequest);
-  const thing = await getAvailabilityArray(days[1]);
-  let availableRoom: RoomAvailability[];
+  // debug.log(rooms)
+  
+  for (const user of users){
+    debug.log(`Making reservations for user ${user.username}`)
+    const reservationRequests = await reservationRequestByUser(prisma, {userId: user.id})
+    const browser = await puppeteer.launch({ headless: "new" });
+    const page = await browser.newPage();
 
-  for (let i = 0; i < rooms.length; i++) {
-    debug.log(`Room ${rooms[i].name}`);
-    const roomAvailability = getRoomAvailabilityArray(thing, rooms[i]);
-    const pendingReservation = isRoomAvailableInTime(
-      roomAvailability,
-      mockReservationRequest
-    );
-    if (pendingReservation) {
-      availableRoom = pendingReservation;
-      debug.log(`${rooms[i].name} is available!`);
-      break;
+
+    for (const reservationRequest of reservationRequests) {
+      const days = reservationDaysInTwoWeeksFromNow(reservationRequest);
+
+      for (const day of days) {
+        const thing = await getAvailabilityArray(day);
+        let availableRoom: RoomAvailability[];
+        let roomId: number;
+        for (let i = 0; i < rooms.length; i++) {
+          debug.log(`Room ${rooms[i].name}`);
+          const roomAvailability = getRoomAvailabilityArray(thing, rooms[i]);
+          const pendingReservation = isRoomAvailableInTime(
+            roomAvailability,
+            reservationRequest
+          );
+          if (pendingReservation) {
+            availableRoom = pendingReservation;
+            roomId = rooms[i].id
+            debug.log(`${rooms[i].name} is available!`);
+            i = rooms.length; // break out of loop
+          }
+        }
+        if (!availableRoom) {
+          // not possible to make reservation on this day 😥, go to next day
+          debug.log(`No rooms available for ${day.toLocaleDateString()}`);
+        } else {
+          // check if person already has a reservation on that day to save time with useless requests
+          const reservationCheck = await getReservation(prisma, {userId: user.id, daySinceEpoch: daySinceEpoch(dateFromReservation(availableRoom))})
+          if (!reservationCheck) {
+            const res = await makeRequest(availableRoom, page, user, roomId)
+            debug.log(`Reservation made on ${day.toLocaleDateString()} for ${user.username} at ${rooms.filter(r => r.id === roomId)[0].name}`)
+            // sleep for a while for emails to be sent
+            await new Promise(r => setTimeout(r, 30000));
+          }
+          else debug.log("Reservation was already made on this day!")
+        }
+      }
     }
-  }
-  console.log(await makeRequest(availableRoom, page));
-  debug.log(daysSinceEpoch());
 
-  setTimeout(async () => await browser.close(), 10000);
+    debug.log('okay im done now')
+    await browser.close()
+  }
 };
 
 const reservationDaysInTwoWeeksFromNow = (
@@ -64,9 +80,9 @@ const reservationDaysInTwoWeeksFromNow = (
   const dayDelta = (days: number) => {
     return days * 24 * 60 * 60 * 1000;
   };
-  debug.log(`Reservation request day: ${reservationRequest.dow}`);
+  console.log(`Reservation request day: ${reservationRequest.dow}`);
   const now = Date.now();
-  debug.log(`Now: ${new Date(now).toDateString()}`);
+  console.log(`Now: ${new Date(now).toDateString()}`);
   let dates: Date[] = [];
   const diff = reservationRequest.iso_weekday - new Date(now).getDay();
   if (diff === 0) {
@@ -80,7 +96,7 @@ const reservationDaysInTwoWeeksFromNow = (
     dates.push(new Date(now + dayDelta(diff)));
     dates.push(new Date(now + dayDelta(diff + 7)));
   }
-  debug.log(`Dates found: ${dates}`);
+  console.log(`Dates found: ${dates}`);
   return dates;
 };
 
@@ -164,12 +180,12 @@ const isRoomAvailableInTime = (
       // slot is between the start and end times we want
       consecutiveSlots--;
       slotsInTime.push(availability);
-      debug.log(
-        `${start.toLocaleTimeString()} > ${slotStartTime.toLocaleTimeString()} > ${end.toLocaleTimeString()}`
-      );
+      // debug.log(
+      //   `${start.toLocaleTimeString()} > ${slotStartTime.toLocaleTimeString()} > ${end.toLocaleTimeString()}`
+      // );
     } else {
       // slot not in time, reset the counter, we don't need to reset the array because it won't be possible for us to get 2 sets of availabilies that are within time
-      debug.log(`${slotStartTime.toLocaleTimeString()}`);
+      // debug.log(`${slotStartTime.toLocaleTimeString()}`);
       consecutiveSlots = reservationRequest.slots30mins;
     }
   }
@@ -192,8 +208,8 @@ const createFormForRequest = (slots: RoomAvailability[]) => {
   return form;
 };
 
-const daysSinceEpoch = (date = new Date()) => {
-  return Math.abs((date.getTime() - new Date(0).getTime()) / 1000 / 86400);
+const daySinceEpoch = (date = new Date()) => {
+  return Math.floor((date.getTime() - new Date(0).getTime()) / 1000 / 86400);
 };
 
 const dateFromReservation = (reservation: RoomAvailability[]) => {
@@ -215,14 +231,14 @@ const HEADERS = {
 const LIBCAL_AUTH_REGEX_CHECK = new RegExp(/<h2>Redirecting \.\.\.<\/h2>/g);
 const LIBCAL_SUBMIT_TIMES_REGEX_CHECK = new RegExp(/Booking Details -/);
 
-const makeRequest = async (slotsToReserve: RoomAvailability[], page: Page) => {
+const makeRequest = async (slotsToReserve: RoomAvailability[], page: Page, user: User, roomId: number) => {
   const getAuth = async (page: Page) => {
     const userNameInput = await page.waitForSelector("#userNameInput");
     const passwordInput = await page.waitForSelector("#passwordInput");
     const submitButton = await page.waitForSelector("#submitButton");
 
-    await userNameInput.type("");
-    await passwordInput.type("");
+    await userNameInput.type(user.username);
+    await passwordInput.type(user.password);
     await submitButton.click({ delay: 300 });
 
     await page.waitForNavigation({ waitUntil: "networkidle0" });
@@ -275,11 +291,15 @@ const makeRequest = async (slotsToReserve: RoomAvailability[], page: Page) => {
   const submitButton = await page.waitForSelector("#btn-form-submit");
   await submitButton.click({ delay: 300 });
 
+  // add reservation to database
+  const dateSinceEpoch = daySinceEpoch(dateFromReservation(slotsToReserve))
+  const reservation = await createReservation(prisma, {daySinceEpoch: dateSinceEpoch, roomId: roomId, userId: user.id})
+
   page.goto(
     "https://concordiauniversity.libcal.com/r/accessible/availability?lid=2161&zone=0&gid=5032&capacity=2&space=0"
   );
 
-  return "done :)";
+  return reservation;
 };
 
 reserve(console);

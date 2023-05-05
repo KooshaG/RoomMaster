@@ -1,12 +1,12 @@
 import { PrismaClient } from '@prisma/client'
-import { deleteUser } from './userFuncs';
+import { createUser, deleteUser } from './userFuncs';
+import { createReservationRequest } from './reservationRequestFuncs';
 
 
 const prisma = new PrismaClient();
 
 const main = async () => {
-  const user = await deleteUser(prisma, {id: 1})
-  console.log(user);
+ 
 }
 
 main()

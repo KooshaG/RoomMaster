@@ -18,7 +18,7 @@ export const createReservationRequest = async (
 
 export const updateReservationRequest = async (
   client:PrismaClient, 
-  args: { id: number, dayOfWeek: string, iso_weekday: number, slots30mins: number, startTime: string, endTime: string}
+  args: { id: number, dayOfWeek?: string, iso_weekday?: number, slots30mins?: number, startTime?: string, endTime?: string}
   ) => {
   return await client.reservationRequest.update({
     where: { id: args.id },

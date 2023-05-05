@@ -23,4 +23,11 @@ export const reservationByUser = async (client:PrismaClient, args: { userId: num
   })
 }
 
+export const getReservation = async (client:PrismaClient, args: { userId: number, daySinceEpoch: number }) => {
+  return await client.reservation.findFirst({
+    where: { userId: args.userId, daySinceEpoch: args.daySinceEpoch },
+    include: { room: true}
+  })
+}
+
 
