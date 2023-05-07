@@ -305,3 +305,6 @@ const makeRequest = async (slotsToReserve: RoomAvailability[], page: Page, user:
 reserve(console);
 
 prisma.$disconnect();
+
+
+export default reserve
