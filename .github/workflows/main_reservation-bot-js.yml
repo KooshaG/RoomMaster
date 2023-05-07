@@ -41,4 +41,4 @@ jobs:
           app-name: 'reservation-bot-js'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D51DBD3C72E0451ABF52530BC428D90F }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2BE6B989DA714A3CBCFB40286A610540 }}
