@@ -147,6 +147,7 @@ const isRoomAvailableInTime = (
   roomArray: RoomAvailability[],
   reservationRequest: ReservationRequest
 ) => {
+  if (!roomArray[0]) return false;
   const [year, month, day] = roomArray[0].start
     .split(" ")[0]
     .split("-")
