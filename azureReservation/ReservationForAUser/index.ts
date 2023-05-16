@@ -1,74 +1,106 @@
-import { Context } from "@azure/functions";
+import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import superagent = require("superagent");
 import HTMLParser from "node-html-parser";
 import { RoomAvailability } from "./Types";
 import { getAllRoom } from "../prisma/functions/roomFuncs";
-import { allUser } from "../prisma/functions/userFuncs";
+import { allUser, findUserForReservation } from "../prisma/functions/userFuncs";
 import { User, Room, ReservationRequest, PrismaClient } from "@prisma/client";
 import puppeteer from "puppeteer";
 import type { Page, Browser } from "puppeteer";
 import { reservationRequestByUser } from "../prisma/functions/reservationRequestFuncs";
-import { createReservation, getReservation } from "../prisma/functions/reservationFuncs";
+import {
+  createReservation,
+  getReservation,
+} from "../prisma/functions/reservationFuncs";
+
+const httpTrigger: AzureFunction = async function (
+  context: Context,
+  req: HttpRequest
+): Promise<void> {
+  context.log("HTTP trigger function processed a request.");
+  const name = req.body && req.body.username;
+  if (!name) {
+    context.res = { status: 400 }
+    return
+  }
+  context.log(`Making reservations for ${req.body.username} if they exist and haven't reserved recently`)
+  const res = await reserve(context, name)
+  context.res = { status: res }
+};
 
 const prisma = new PrismaClient();
 
 const LID = 2161;
 
-const reserve = async (context: Context) => {
+const reserve = async (context: Context, username: string) => {
   // initialize constants
   const rooms = await getAllRoom(prisma);
-  const users = await allUser(prisma)
+  const user = await findUserForReservation(prisma, { username });
+
+  if (!user) {
+    context.log("User not found")
+    return 400;
+  } // if theres no user, return 400 status code
 
   // debug.log(rooms)
-  
-  for (const user of users){
-    context.log(`Making reservations for user ${user.username}`)
-    const reservationRequests = await reservationRequestByUser(prisma, {userId: user.id})
-    const browser = await puppeteer.launch({ headless: "new" });
-    const page = await browser.newPage();
 
+  context.log(`Making reservations for user ${user.username}`);
+  const reservationRequests = await reservationRequestByUser(prisma, {
+    userId: user.id,
+  });
+  const browser = await puppeteer.launch({ headless: "new" });
+  const page = await browser.newPage();
 
-    for (const reservationRequest of reservationRequests) {
-      const days = reservationDaysInTwoWeeksFromNow(reservationRequest);
+  for (const reservationRequest of reservationRequests) {
+    const days = reservationDaysInTwoWeeksFromNow(reservationRequest);
 
-      for (const day of days) {
-        const thing = await getAvailabilityArray(day);
-        let availableRoom: RoomAvailability[];
-        let roomId: number;
-        for (let i = 0; i < rooms.length; i++) {
-          context.log(`Room ${rooms[i].name}`);
-          const roomAvailability = getRoomAvailabilityArray(thing, rooms[i]);
-          const pendingReservation = isRoomAvailableInTime(
-            roomAvailability,
-            reservationRequest
-          );
-          if (pendingReservation) {
-            availableRoom = pendingReservation;
-            roomId = rooms[i].id
-            context.log(`${rooms[i].name} is available!`);
-            i = rooms.length; // break out of loop
-          }
-        }
-        if (!availableRoom) {
-          // not possible to make reservation on this day 😥, go to next day
-          context.log(`No rooms available for ${day.toLocaleDateString()}`);
-        } else {
-          // check if person already has a reservation on that day to save time with useless requests
-          const reservationCheck = await getReservation(prisma, {userId: user.id, daySinceEpoch: daySinceEpoch(dateFromReservation(availableRoom))})
-          if (!reservationCheck) {
-            const res = await makeRequest(availableRoom, page, user, roomId)
-            context.log(`Reservation made on ${day.toLocaleDateString()} for ${user.username} at ${rooms.filter(r => r.id === roomId)[0].name}`)
-            // sleep for a while for emails to be sent
-            await new Promise(r => setTimeout(r, 30000));
-          }
-          else context.log("Reservation was already made on this day!")
+    for (const day of days) {
+      const thing = await getAvailabilityArray(day);
+      let availableRoom: RoomAvailability[];
+      let roomId: number;
+      for (let i = 0; i < rooms.length; i++) {
+        context.log(`Room ${rooms[i].name}`);
+        const roomAvailability = getRoomAvailabilityArray(thing, rooms[i]);
+        const pendingReservation = isRoomAvailableInTime(
+          roomAvailability,
+          reservationRequest
+        );
+        if (pendingReservation) {
+          availableRoom = pendingReservation;
+          roomId = rooms[i].id;
+          context.log(`${rooms[i].name} is available!`);
+          i = rooms.length; // break out of loop
         }
       }
+      if (!availableRoom) {
+        // not possible to make reservation on this day 😥, go to next day
+        context.log(`No rooms available for ${day.toLocaleDateString()}`);
+      } else {
+        // check if person already has a reservation on that day to save time with useless requests
+        const reservationCheck = await getReservation(prisma, {
+          userId: user.id,
+          daySinceEpoch: daySinceEpoch(dateFromReservation(availableRoom)),
+        });
+        if (!reservationCheck) {
+          const res = await makeRequest(availableRoom, page, user, roomId);
+          context.log(
+            `Reservation made on ${day.toLocaleDateString()} for ${
+              user.username
+            } at ${rooms.filter((r) => r.id === roomId)[0].name}`
+          );
+          // sleep for a while for emails to be sent
+          await new Promise((r) => setTimeout(r, 15000));
+        } else context.log("Reservation was already made on this day!");
+      }
     }
-
-    context.log('okay im done now')
-    await browser.close()
   }
+  let response
+  context.log("okay im done now");
+  browser.close().then(() => {
+    response = 200;
+  });
+
+  return response
 };
 
 const reservationDaysInTwoWeeksFromNow = (
@@ -229,7 +261,12 @@ const HEADERS = {
 const LIBCAL_AUTH_REGEX_CHECK = new RegExp(/<h2>Redirecting \.\.\.<\/h2>/g);
 const LIBCAL_SUBMIT_TIMES_REGEX_CHECK = new RegExp(/Booking Details -/);
 
-const makeRequest = async (slotsToReserve: RoomAvailability[], page: Page, user: User, roomId: number) => {
+const makeRequest = async (
+  slotsToReserve: RoomAvailability[],
+  page: Page,
+  user: User,
+  roomId: number
+) => {
   const getAuth = async (page: Page) => {
     const userNameInput = await page.waitForSelector("#userNameInput");
     const passwordInput = await page.waitForSelector("#passwordInput");
@@ -290,8 +327,12 @@ const makeRequest = async (slotsToReserve: RoomAvailability[], page: Page, user:
   await submitButton.click({ delay: 300 });
 
   // add reservation to database
-  const dateSinceEpoch = daySinceEpoch(dateFromReservation(slotsToReserve))
-  const reservation = await createReservation(prisma, {daySinceEpoch: dateSinceEpoch, roomId: roomId, userId: user.id})
+  const dateSinceEpoch = daySinceEpoch(dateFromReservation(slotsToReserve));
+  const reservation = await createReservation(prisma, {
+    daySinceEpoch: dateSinceEpoch,
+    roomId: roomId,
+    userId: user.id,
+  });
 
   page.goto(
     "https://concordiauniversity.libcal.com/r/accessible/availability?lid=2161&zone=0&gid=5032&capacity=2&space=0"
@@ -304,5 +345,4 @@ const makeRequest = async (slotsToReserve: RoomAvailability[], page: Page, user:
 
 prisma.$disconnect();
 
-
-export default reserve
+export default httpTrigger;

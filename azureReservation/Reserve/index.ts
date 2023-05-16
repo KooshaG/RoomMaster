@@ -9,10 +9,11 @@ const timerTrigger: AzureFunction = async function (context: Context, myTimer: a
     {
         context.log('Timer function is running late!');
     }
-    reserve(context).then(() => {
-        timeStamp = new Date().toISOString();
-        context.log('Timer trigger function ended:', timeStamp);   
-    })
+    // reserve(context).then(() => {
+    //     timeStamp = new Date().toISOString();
+    //     context.log('Timer trigger function ended:', timeStamp);   
+    // })
+    setTimeout(() => {context.log('Timer trigger function ended')}, 10000)
 };
 
 export default timerTrigger;

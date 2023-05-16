@@ -7,7 +7,10 @@ export const createUser = async (client: PrismaClient, args: { username: string,
       {
         data: {
           username: args.username,
-          password: args.password
+          password: args.password,
+          loginUsername: args.username,
+          loginPassword: args.password,
+          lastRequestTime: null
         }
       }
     )
@@ -41,6 +44,19 @@ export const deleteUser = async (client: PrismaClient, args:{ id: number }) => {
 
 export const findUser = async (client: PrismaClient, args: {id: number}) => {
   return await client.user.findUnique({ where: {id: args.id} })
+}
+
+export const findUserForReservation = async (client: PrismaClient, args: {username: string}) => {
+  const user = await client.user.findUnique({ where: {username: args.username} })
+  if (!user || user.lastRequestTime?.getTime() + (1000 * 60 * 60 * 12) > Date.now()) {
+  // if (!user || user.lastRequestTime?.getTime() > Date.now()) {
+    return undefined
+  }
+  await client.user.update({
+    where: {id: user.id},
+    data: {lastRequestTime: new Date()}
+  })
+  return user
 }
 
 export const allUser = async (client: PrismaClient) => {
