@@ -3,7 +3,7 @@
   "version": "2.0.0-alpha",
   "description": "",
   "scripts": {
-    "build": "tsc && prisma generate",
+    "build": "prisma generate && tsc",
     "watch": "tsc -w",
     "prestart": "npm run build",
     "start": "func start --typescript",
