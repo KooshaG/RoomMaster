@@ -2,6 +2,7 @@
 *.ts
 .git*
 .vscode
+.cache
 local.settings.json
 test
 getting_started.md
