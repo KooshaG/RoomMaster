@@ -8,7 +8,8 @@
     "prestart": "npm run build",
     "start": "func start --typescript",
     "test": "echo \"No tests yet...\"",
-    "local": "tsc && node dist/Reserve/reserve.js"
+    "local": "tsc && node dist/Reserve/reserve.js",
+    "postinstall": "node node_modules/puppeteer/install.js"
   },
   "devDependencies": {
     "@azure/functions": "^3.0.0",

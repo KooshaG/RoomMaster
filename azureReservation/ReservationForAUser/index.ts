@@ -48,7 +48,7 @@ const reserve = async (context: Context, username: string) => {
   const reservationRequests = await reservationRequestByUser(prisma, {
     userId: user.id,
   });
-  const browser = await puppeteer.launch({ headless: "new" });
+  const browser = await puppeteer.launch({ headless: "new", args: ["--no-sandbox", "--disable-setuid-sandbox"] });
   const page = await browser.newPage();
 
   for (const reservationRequest of reservationRequests) {
