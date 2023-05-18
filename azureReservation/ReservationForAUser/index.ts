@@ -20,12 +20,14 @@ const httpTrigger: AzureFunction = async function (
   context.log("HTTP trigger function processed a request.");
   const name = req.body && req.body.username;
   if (!name) {
-    context.res = { status: 400 }
-    return
+    context.res = { status: 400 };
+    return;
   }
-  context.log(`Making reservations for ${req.body.username} if they exist and haven't reserved recently`)
-  const res = await reserve(context, name)
-  context.res = { status: res }
+  context.log(
+    `Making reservations for ${req.body.username} if they exist and haven't reserved recently`
+  );
+  const res = await reserve(context, name);
+  context.res = { status: res };
 };
 
 const prisma = new PrismaClient();
@@ -38,7 +40,7 @@ const reserve = async (context: Context, username: string) => {
   const user = await findUserForReservation(prisma, { username });
 
   if (!user) {
-    context.log("User not found")
+    context.log("User not found");
     return 400;
   } // if theres no user, return 400 status code
 
@@ -48,7 +50,12 @@ const reserve = async (context: Context, username: string) => {
   const reservationRequests = await reservationRequestByUser(prisma, {
     userId: user.id,
   });
-  const browser = await puppeteer.launch({ headless: "new", args: ["--no-sandbox", "--disable-setuid-sandbox"] });
+  const browser = await puppeteer.launch({
+    headless: "new",
+    executablePath:
+      ".cache/puppeteer/chrome/linux-113.0.5672.63/chrome-linux64/chrome",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
   const page = await browser.newPage();
 
   for (const reservationRequest of reservationRequests) {
@@ -94,13 +101,13 @@ const reserve = async (context: Context, username: string) => {
       }
     }
   }
-  let response
+  let response;
   context.log("okay im done now");
   browser.close().then(() => {
     response = 200;
   });
 
-  return response
+  return response;
 };
 
 const reservationDaysInTwoWeeksFromNow = (
