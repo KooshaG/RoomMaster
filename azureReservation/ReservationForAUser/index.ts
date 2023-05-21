@@ -52,8 +52,6 @@ const reserve = async (context: Context, username: string) => {
   });
   const browser = await puppeteer.launch({
     headless: "new",
-    executablePath:
-      ".cache/puppeteer/chrome/linux-113.0.5672.63/chrome-linux64/chrome",
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
   const page = await browser.newPage();
