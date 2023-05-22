@@ -37,8 +37,8 @@ const LID = 2161;
 const reserve = async (context: Context, username: string) => {
   // initialize constants
   const rooms = await getAllRoom(prisma);
-  const user = await findUserForReservation(prisma, { username });
-
+  const user = await findUserForReservation(prisma, { username });  // this implementation isnt great, we set the reservation time here and not after the reservation is made
+                                                                    // if there's an error, the user will still have to wait 12 hours until the next request
   if (!user) {
     context.log("User not found");
     return 400;
@@ -284,7 +284,7 @@ const makeRequest = async (
     await page.waitForNavigation({ waitUntil: "networkidle0" });
 
     const res = await page.content();
-
+    // console.log("got auth")
     return res;
   };
 
@@ -325,6 +325,7 @@ const makeRequest = async (
     LIBCAL_SUBMIT_TIMES_REGEX_CHECK
   );
   if (!atConfirmationPage) {
+    // page.screenshot({path: "hello", fullPage: true, type: "png"});
     throw new Error("Not at confirmation page");
   }
 
