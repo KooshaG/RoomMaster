@@ -94,16 +94,15 @@ const reserve = async (context: Context, username: string) => {
             } at ${rooms.filter((r) => r.id === roomId)[0].name}`
           );
           // sleep for a while for emails to be sent
-          await new Promise((r) => setTimeout(r, 15000));
+          await new Promise((r) => setTimeout(r, 1500));
         } else context.log("Reservation was already made on this day!");
       }
     }
   }
   let response;
   context.log("okay im done now");
-  browser.close().then(() => {
-    response = 200;
-  });
+  await browser.close();
+  response = 200;
 
   return response;
 };
@@ -340,9 +339,9 @@ const makeRequest = async (
     userId: user.id,
   });
 
-  page.goto(
-    "https://concordiauniversity.libcal.com/r/accessible/availability?lid=2161&zone=0&gid=5032&capacity=2&space=0"
-  );
+  // await page.goto(
+  //   "https://concordiauniversity.libcal.com/r/accessible/availability?lid=2161&zone=0&gid=5032&capacity=2&space=0"
+  // );
 
   return reservation;
 };
