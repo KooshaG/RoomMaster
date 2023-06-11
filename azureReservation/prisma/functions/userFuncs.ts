@@ -6,8 +6,7 @@ export const createUser = async (client: PrismaClient, args: { username: string,
     return await client.user.create(
       {
         data: {
-          username: args.username,
-          password: args.password,
+          email: args.username,
           loginUsername: args.username,
           loginPassword: args.password,
           lastRequestTime: null
@@ -20,14 +19,14 @@ export const createUser = async (client: PrismaClient, args: { username: string,
   }
 }
 
-export const updateUser = async (client: PrismaClient, args: {id: number, username?: string, password?: string}) => {
+export const updateUser = async (client: PrismaClient, args: {id: string, username?: string, password?: string}) => {
   const validEmail = args.username.endsWith("@live.concordia.ca")
   if (validEmail) {
     return await client.user.update({
       where: {id: args.id},
       data: {
-        username: args.username,
-        password: args.password
+        loginUsername: args.username,
+        loginPassword: args.password
       }
     })
   }
@@ -36,18 +35,18 @@ export const updateUser = async (client: PrismaClient, args: {id: number, userna
   }
 }
 
-export const deleteUser = async (client: PrismaClient, args:{ id: number }) => {
+export const deleteUser = async (client: PrismaClient, args:{ id: string }) => {
   return await client.user.delete({
     where: {id: args.id}
   })
 }
 
-export const findUser = async (client: PrismaClient, args: {id: number}) => {
+export const findUser = async (client: PrismaClient, args: {id: string}) => {
   return await client.user.findUnique({ where: {id: args.id} })
 }
 
 export const findUserForReservation = async (client: PrismaClient, args: {username: string}) => {
-  const user = await client.user.findUnique({ where: {username: args.username} })
+  const user = await client.user.findUnique({ where: {loginUsername: args.username} })
   if (!user || user.lastRequestTime?.getTime() + (1000 * 60 * 60 * 12) > Date.now()) {
   // if (!user || user.lastRequestTime?.getTime() > Date.now()) {
     return undefined

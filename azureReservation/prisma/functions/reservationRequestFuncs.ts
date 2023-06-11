@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 
 export const createReservationRequest = async (
   client:PrismaClient, 
-  args: { dayOfWeek: string, iso_weekday: number, slots30mins: number, startTime: string, endTime: string, userId: number }
+  args: { dayOfWeek: string, iso_weekday: number, slots30mins: number, startTime: string, endTime: string, userId: string }
   ) => {
   return await client.reservationRequest.create({
     data: {
@@ -38,7 +38,7 @@ export const deleteReservationRequest = async (client:PrismaClient, args: { id: 
   })
 }
 
-export const reservationRequestByUser = async (client:PrismaClient, args: { userId: number }) => {
+export const reservationRequestByUser = async (client:PrismaClient, args: { userId: string }) => {
   return await client.reservationRequest.findMany({
     where: { userId: args.userId }
   })

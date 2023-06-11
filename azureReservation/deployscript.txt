@@ -1,0 +1,2 @@
+func azure functionapp publish $appName --build remote
+func azure functionapp publish reservation-service --build remote

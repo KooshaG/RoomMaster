@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 
-export const createReservation = async (client:PrismaClient, args: { daySinceEpoch: number, roomId: number, userId: number }) => {
+export const createReservation = async (client:PrismaClient, args: { daySinceEpoch: number, roomId: number, userId: string }) => {
   return await client.reservation.create({
     data:{
       daySinceEpoch: args.daySinceEpoch,
@@ -16,14 +16,14 @@ export const deleteReservation = async (client:PrismaClient, args: { id: number 
   })  
 }
 
-export const reservationByUser = async (client:PrismaClient, args: { userId: number }) => {
+export const reservationByUser = async (client:PrismaClient, args: { userId: string }) => {
   return await client.reservation.findMany({
     where: { userId: args.userId },
     include: { room: true }
   })
 }
 
-export const getReservation = async (client:PrismaClient, args: { userId: number, daySinceEpoch: number }) => {
+export const getReservation = async (client:PrismaClient, args: { userId: string, daySinceEpoch: number }) => {
   return await client.reservation.findFirst({
     where: { userId: args.userId, daySinceEpoch: args.daySinceEpoch },
     include: { room: true}

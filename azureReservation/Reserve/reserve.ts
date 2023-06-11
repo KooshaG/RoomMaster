@@ -22,7 +22,7 @@ const reserve = async (context: Context) => {
   // debug.log(rooms)
   
   for (const user of users){
-    context.log(`Making reservations for user ${user.username}`)
+    context.log(`Making reservations for user ${user.loginUsername}`)
     const reservationRequests = await reservationRequestByUser(prisma, {userId: user.id})
     const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
@@ -57,7 +57,7 @@ const reserve = async (context: Context) => {
           const reservationCheck = await getReservation(prisma, {userId: user.id, daySinceEpoch: daySinceEpoch(dateFromReservation(availableRoom))})
           if (!reservationCheck) {
             const res = await makeRequest(availableRoom, page, user, roomId)
-            context.log(`Reservation made on ${day.toLocaleDateString()} for ${user.username} at ${rooms.filter(r => r.id === roomId)[0].name}`)
+            context.log(`Reservation made on ${day.toLocaleDateString()} for ${user.loginUsername} at ${rooms.filter(r => r.id === roomId)[0].name}`)
             // sleep for a while for emails to be sent
             await new Promise(r => setTimeout(r, 30000));
           }
@@ -235,8 +235,8 @@ const makeRequest = async (slotsToReserve: RoomAvailability[], page: Page, user:
     const passwordInput = await page.waitForSelector("#passwordInput");
     const submitButton = await page.waitForSelector("#submitButton");
 
-    await userNameInput.type(user.username);
-    await passwordInput.type(user.password);
+    await userNameInput.type(user.loginUsername);
+    await passwordInput.type(user.loginPassword);
     await submitButton.click({ delay: 300 });
 
     await page.waitForNavigation({ waitUntil: "networkidle0" });

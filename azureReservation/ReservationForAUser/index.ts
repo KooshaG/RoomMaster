@@ -46,7 +46,7 @@ const reserve = async (context: Context, username: string) => {
 
   // debug.log(rooms)
 
-  context.log(`Making reservations for user ${user.username}`);
+  context.log(`Making reservations for user ${user.loginUsername}`);
   const reservationRequests = await reservationRequestByUser(prisma, {
     userId: user.id,
   });
@@ -90,7 +90,7 @@ const reserve = async (context: Context, username: string) => {
           const res = await makeRequest(availableRoom, page, user, roomId);
           context.log(
             `Reservation made on ${day.toLocaleDateString()} for ${
-              user.username
+              user.loginUsername
             } at ${rooms.filter((r) => r.id === roomId)[0].name}`
           );
           // sleep for a while for emails to be sent
@@ -276,8 +276,8 @@ const makeRequest = async (
     const passwordInput = await page.waitForSelector("#passwordInput");
     const submitButton = await page.waitForSelector("#submitButton");
 
-    await userNameInput.type(user.username);
-    await passwordInput.type(user.password);
+    await userNameInput.type(user.loginUsername);
+    await passwordInput.type(user.loginPassword);
     await submitButton.click({ delay: 300 });
 
     await page.waitForNavigation({ waitUntil: "networkidle0" });
