@@ -1,3 +1,8 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "eol-last": "error",
+    "no-unused-vars": "error",
+    "semi":"warn"
+  }
 }
