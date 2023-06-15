@@ -19,6 +19,7 @@ model Account {
   provider           String
   providerAccountId  String
   refresh_token      String?  @db.Text
+  refresh_token_expires_in Int?
   access_token       String?  @db.Text
   expires_at         Int?
   token_type         String?
@@ -51,6 +52,9 @@ model User {
   loginUsername String? @unique
   loginPassword String?
   lastRequestTime DateTime?
+  verified  Boolean @default(false)
+  admin Boolean @default(false)
+
   reservatons Reservation[]
   reservationRequests ReservationRequest[]
 }
@@ -70,7 +74,7 @@ model Reservation{
   room Room @relation(fields: [roomId], references: [id])
   roomId Int
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 }
 
@@ -92,7 +96,8 @@ model ReservationRequest{
   slots30mins Int
   startTime String
   endTime String
+  active Boolean
 
-  user User @relation(fields:[userId], references: [id])
+  user User @relation(fields:[userId], references: [id], onDelete: Cascade)
   userId String
 }

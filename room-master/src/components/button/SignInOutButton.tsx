@@ -16,7 +16,7 @@ export default function SignInOutButton({ session }: Props) {
     <button
       className={`btn ${session ? 'btn-accent' : 'btn-primary'}`}
       onClick={() => {
-        session ? signOut() : signIn();
+        session ? signOut({callbackUrl: "/"}) : signIn();
       }}
     >
       {session ? 'Sign Out' : 'Sign In'}

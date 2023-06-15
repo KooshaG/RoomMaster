@@ -1,4 +1,6 @@
-import NextAuth, { DefaultSession } from "next-auth"
+/* eslint-disable no-unused-vars */
+import NextAuth, { DefaultSession } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
 declare module "next-auth" {
   /**
@@ -7,7 +9,17 @@ declare module "next-auth" {
   interface Session {
     user: {
       /** The user's postal address. */
-      id: string?
+      id: string?;
+      verified: boolean?;
+      admin?: boolean;
     } & DefaultSession["user"]
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT extends Record<string, unknown>, DefaultJWT {
+    id: string?;
+    verified: boolean?;
+    admin?: boolean;
   }
 }

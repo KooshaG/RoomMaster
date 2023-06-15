@@ -14,9 +14,11 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    session({ session, user }) {
+    async session({ session, user }) {
       session.user.id = user.id;
-
+      const userInfo = await prisma.user.findUnique({ where: { id: user.id }, select: { verified: true, admin: true } });
+      session.user.verified = userInfo?.verified ?? false;
+      session.user.admin = userInfo?.admin ?? false;
       return session;
     },
   },

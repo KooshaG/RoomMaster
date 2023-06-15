@@ -5,6 +5,7 @@ import { NextAuthProvider } from './providers';
 import SignInOutButton from '@/components/button/SignInOutButton';
 import { authOptions } from './api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth';
+import NavbarCenterButtons from '@/components/NavbarCenterButtons';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,16 +21,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <NextAuthProvider>
         <body className={inter.className}>
           <div className='navbar bg-base-100 drop-shadow'>
-            <div className='flex-1'>
+            <div className='navbar-start'>
               <Link href='/' className='btn btn-ghost normal-case text-xl font-bold'>
                 Room Master
               </Link>
             </div>
-            <div className='flex-none'>
+            <div className='navbar-center'>
+              <NavbarCenterButtons session={session}/>
+            </div>
+            <div className='navbar-end'>
               <SignInOutButton session={session} />
             </div>
           </div>
-          {children}
+          <main className="flex min-h-screen flex-col p-24 text-center md:text-left">
+            {children}
+          </main>
         </body>
       </NextAuthProvider>
     </html>
