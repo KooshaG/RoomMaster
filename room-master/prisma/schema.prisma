@@ -96,7 +96,7 @@ model ReservationRequest{
   slots30mins Int
   startTime String
   endTime String
-  active Boolean
+  active Boolean @default(false)
 
   user User @relation(fields:[userId], references: [id], onDelete: Cascade)
   userId String

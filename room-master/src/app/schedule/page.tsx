@@ -7,7 +7,7 @@ import ScheduleController from "@/components/ScheduleController";
 export default async function Schedule() {
   const session = await getServerSession(authOptions);
   if (session && session.user.id) {
-    const reservationRequests = await prisma.reservationRequest.findMany({where: {userId: session?.user.id}});
+    const reservationRequests = await prisma.reservationRequest.findMany();
     
 
     return (<><pre>{JSON.stringify(reservationRequests, null, 2)}</pre>
