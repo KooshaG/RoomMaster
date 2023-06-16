@@ -33,7 +33,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <SignInOutButton session={session} />
             </div>
           </div>
-          <main className="flex min-h-screen flex-col p-24 text-center md:text-left">
+          <main className="flex min-h-screen flex-col p-6 sm:p-24 text-center md:text-left">
             {children}
           </main>
         </body>

@@ -1,37 +1,37 @@
 export const days = [
   { 
     dayName: "Sunday",
-    isoDay: "0",
+    isoDay: 0,
     selected: false,
   },
   { 
     dayName: "Monday",
-    isoDay: "1",
+    isoDay: 1,
     selected: false,
   },
   { 
     dayName: "Tuesday",
-    isoDay: "2",
+    isoDay: 2,
     selected: false,
   },
   { 
     dayName: "Wednesday",
-    isoDay: "3",
+    isoDay: 3,
     selected: false,
   },
   { 
     dayName: "Thursday",
-    isoDay: "4",
+    isoDay: 4,
     selected: false,
   },
   { 
     dayName: "Friday",
-    isoDay: "5",
+    isoDay: 5,
     selected: false,
   },
   { 
     dayName: "Saturday",
-    isoDay: "6",
+    isoDay: 6,
     selected: false,
   },
 ];

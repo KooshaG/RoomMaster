@@ -37,17 +37,17 @@ export default function NavbarCenterButtons({session}: Props) {
   <div className="navbar-center">
     {
     session && 
-    <div className="tabs">
+    <div className="tabs hidden md:block">
       {navLinks.map(link => {
         return (
-        <Link key={link.nav} href={link.nav} className={`tab tab-lg tab-lifted ${pathname.startsWith(link.nav) ? "tab-active" : ""}`}>
+        <Link key={link.nav} href={link.nav} className={`tab md:tab-md lg:tab-lg tab-lifted ${pathname.startsWith(link.nav) ? "tab-active" : ""}`}>
           {link.name}
         </Link>
         );
       })}
       {
       session && session.user.admin && 
-      <Link key="/admin" href={"/admin"} className={`tab tab-lg tab-lifted ${pathname.startsWith("/admin") ? "tab-active" : ""}`}>
+      <Link key="/admin" href={"/admin"} className={`tab md:tab-md lg:tab-lg tab-lifted ${pathname.startsWith("/admin") ? "tab-active" : ""}`}>
         Admin
       </Link>
       }
