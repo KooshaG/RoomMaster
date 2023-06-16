@@ -42,7 +42,7 @@ export function ReservationSelector() {
       {fullTimes.slice(0, fullTimes.length-1).map((time, index) => <option key={time} data-key={index}>{`${time.split(':')[0]}:${time.split(':')[1]}`}</option>)}
     </select>
     <p>{selectedStart}</p>
-    <select defaultValue="End Time" disabled={selectedStart === ""} onChange={e => setSelectedEnd(fullTimes[e.target.options.selectedIndex-1])} className="select select-bordered w-full max-w-xs">
+    <select defaultValue="End Time" disabled={selectedStart === ""} onChange={e => setSelectedEnd(availableEndTimes[e.target.options.selectedIndex-1])} className="select select-bordered w-full max-w-xs">
       <option disabled>End Time</option>
       {availableEndTimes.map(time => <option key={time}>{`${time.split(':')[0]}:${time.split(':')[1]}`}</option>)}
     </select>
