@@ -117,7 +117,6 @@ export default function ReservationSelector({ days, setDays, reservatonRequest, 
 
   return (
     <div className="flex flex-col gap-4 items-center">
-      <span>{JSON.stringify(selectedDay, null, 2)}</span>
       <select value={selectedDay?.isoDay ?? -1} onChange={handleDayChange} className='select select-bordered w-full sm:w-[20rem]'>
         <option disabled value="-1">Select Day</option>
         {days
