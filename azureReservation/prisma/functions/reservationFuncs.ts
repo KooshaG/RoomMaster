@@ -1,9 +1,10 @@
 import { PrismaClient } from '@prisma/client'
 
-export const createReservation = async (client:PrismaClient, args: { daySinceEpoch: number, roomId: number, userId: string }) => {
+export const createReservation = async (client:PrismaClient, args: { daySinceEpoch: number, roomId: number, userId: string, date: Date }) => {
   return await client.reservation.create({
     data:{
       daySinceEpoch: args.daySinceEpoch,
+      date: args.date,
       room: { connect: { id: args.roomId }},
       user: { connect: { id: args.userId }}
     }

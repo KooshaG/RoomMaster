@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@azure/functions": "^3.0.0",
+    "@types/crypto-js": "^4.1.1",
     "@types/node": "16.x",
     "azure-functions-core-tools": "^4.x",
     "prisma": "^4.14.1",
@@ -22,6 +23,7 @@
   "dependencies": {
     "@prisma/client": "^4.14.1",
     "@types/superagent": "^4.1.16",
+    "crypto-js": "^4.1.1",
     "node-html-parser": "^6.1.4",
     "puppeteer": "^20.1.0",
     "superagent": "^8.0.9"

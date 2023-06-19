@@ -2,18 +2,14 @@
 
 import { type ReservationRequest } from "@prisma/client";
 import { days } from "@/lib/reservationConst";
-import { type Session } from "next-auth";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import ReservationSelector from "./ReservationSelector";
 
 type Props = {
-  session: Session
   reservationRequests: ReservationRequest[]
 }
 
-
-
-export default function ScheduleController({session, reservationRequests}: Props) {
+export default function ScheduleController({reservationRequests}: Props) {
 
   const initialReservationRequestsArray: (Partial<ReservationRequest> | false)[] = [...reservationRequests, ...Array(3 - reservationRequests.length).fill(false)];
 
@@ -21,6 +17,10 @@ export default function ScheduleController({session, reservationRequests}: Props
   const [availableDays, setAvailableDays] = useState(days);
   const [numRequests, setNumRequests] = useState(reservationRequests.length);
   const [validSchedule, setValidSchedule] = useState<boolean>();
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [toastVisible, setToastVisible] = useState<boolean>(false);
+
+  const timeoutID = useRef<NodeJS.Timeout>();
 
   // check that the reservation schedule is valid
   useEffect(() => {
@@ -45,8 +45,23 @@ export default function ScheduleController({session, reservationRequests}: Props
     setReservationSchedule((curr) => [...curr.slice(0, numRequests), ...Array(3 - numRequests).fill(false)]);
   }, [numRequests]);
 
-  function handleScheduleSubmit() {
-    console.log('teekee')
+  async function handleScheduleSubmit() {
+    setSubmitting(true);
+    const res = await fetch("/api/schedule", {
+      method: "POST",
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(reservationSchedule.filter(request => request !== false))
+    });
+    setSubmitting(false);
+    if (timeoutID.current) {
+      clearTimeout(timeoutID.current);
+    }
+    if (res.status === 200) {
+      setToastVisible(true);
+      timeoutID.current = setTimeout(() => setToastVisible(false), 2000);
+    }
   }
 
   return (
@@ -70,23 +85,15 @@ export default function ScheduleController({session, reservationRequests}: Props
         </button>
       </div>
       <div className="divider"></div>
-      <button className={`btn ${validSchedule ? "btn-accent" : "btn-disabled btn-outline"} self-center w-full sm:w-[20rem]`} onClick={handleScheduleSubmit}>
+      <button className={`btn ${validSchedule && !submitting ? "btn-primary" : "btn-disabled btn-outline"} self-center w-full sm:w-[20rem]`} onClick={handleScheduleSubmit}>
         {validSchedule ? "Submit Schedule" : "Invalid Schedule"}
       </button>
     </div>
-    
+    <div className={`toast ${toastVisible ? "" : "hidden"}`}>
+      <div className="alert alert-success">
+        <span>Schedule submitted successfully!</span>
+      </div>
+    </div>
   </div>
   );
-
-
 }
-
-
-
-
-
-
-
-
-
-

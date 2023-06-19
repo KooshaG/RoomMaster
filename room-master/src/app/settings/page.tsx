@@ -1,20 +1,23 @@
-'use client';
+import { prisma } from "@/prismaClient";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/route";
+import SettingController from "@/components/Settings/SettingController";
 
-import { useSession, signIn, signOut } from 'next-auth/react';
-export default function Component() {
-  const { data: session } = useSession();
-  if (session) {
+
+export default async function Schedule() {
+  const session = await getServerSession(authOptions);
+  if (session && session.user.id) {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+  if (user) {
     return (
-      <>
-        Signed in as {session?.user?.name} <br />
-        <button onClick={() => signOut()}>Sign out</button>
-      </>
+    <div className="flex flex-col justify-center">
+      {/* <pre>{JSON.stringify(user, null, 2)}</pre> */}
+      <SettingController user={user}/>
+    </div>
     );
-  }
-  return (
-    <>
-      Not signed in <br />
-      <button onClick={() => signIn()}>Sign in</button>
-    </>
-  );
+  }}
+  return <p>o no</p>;
+
 }

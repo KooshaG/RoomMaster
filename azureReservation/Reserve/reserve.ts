@@ -291,13 +291,13 @@ const makeRequest = async (slotsToReserve: RoomAvailability[], page: Page, user:
 
   // add reservation to database
   const dateSinceEpoch = daySinceEpoch(dateFromReservation(slotsToReserve))
-  const reservation = await createReservation(prisma, {daySinceEpoch: dateSinceEpoch, roomId: roomId, userId: user.id})
+  // const reservation = await createReservation(prisma, {daySinceEpoch: dateSinceEpoch, roomId: roomId, userId: user.id})
 
   page.goto(
     "https://concordiauniversity.libcal.com/r/accessible/availability?lid=2161&zone=0&gid=5032&capacity=2&space=0"
   );
 
-  return reservation;
+  return "reservation";
 };
 
 // reserve(console);

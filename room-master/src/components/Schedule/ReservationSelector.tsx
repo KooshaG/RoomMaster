@@ -1,4 +1,3 @@
-'use client';
 
 import { type ChangeEvent, useState, type SetStateAction, type Dispatch, useEffect } from 'react';
 import { fullTimes } from '@/lib/reservationConst';
@@ -63,7 +62,6 @@ export default function ReservationSelector({ days, setDays, reservatonRequest, 
       return request;
     });
     setReservatonRequest(newRequestArray);
-    // console.log("new request array")
   }, [availableEndTimes, reservationIndex, selectedDay, selectedEnd, selectedStart, setReservatonRequest]);
 
   useEffect(() => {
@@ -83,7 +81,6 @@ export default function ReservationSelector({ days, setDays, reservatonRequest, 
       const times = fullTimes.slice(timeIndex, timeIndex + 6);
       setAvailableEndTimes(times);
     }
-    console.table(days)
   }, []);
 
   function handleStartChange(event: ChangeEvent<HTMLSelectElement>) {

@@ -12,7 +12,7 @@ export default async function Schedule() {
   return (
   <div className="flex flex-col justify-center">
     {/* <pre>{JSON.stringify(reservationRequests, null, 2)}</pre> */}
-    <ScheduleController reservationRequests={reservationRequests} session={session}/>
+    <ScheduleController reservationRequests={reservationRequests}/>
   </div>
   );
   }

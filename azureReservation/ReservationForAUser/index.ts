@@ -12,6 +12,7 @@ import {
   createReservation,
   getReservation,
 } from "../prisma/functions/reservationFuncs";
+import { decrypt } from "./encryption";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -46,7 +47,7 @@ const reserve = async (context: Context, username: string) => {
 
   // debug.log(rooms)
 
-  context.log(`Making reservations for user ${user.loginUsername}`);
+  context.log(`Making reservations for user ${user.loginUsername}}`);
   const reservationRequests = await reservationRequestByUser(prisma, {
     userId: user.id,
   });
@@ -87,7 +88,7 @@ const reserve = async (context: Context, username: string) => {
           daySinceEpoch: daySinceEpoch(dateFromReservation(availableRoom)),
         });
         if (!reservationCheck) {
-          const res = await makeRequest(availableRoom, page, user, roomId);
+          const res = await makeRequest(availableRoom, day, page, user, roomId);
           context.log(
             `Reservation made on ${day.toLocaleDateString()} for ${
               user.loginUsername
@@ -178,7 +179,7 @@ const getRoomAvailabilityArray = (
 
 const isRoomAvailableInTime = (
   roomArray: RoomAvailability[],
-  reservationRequest: ReservationRequest
+  reservationRequest: ReservationRequest,
 ) => {
   if (!roomArray[0]) return false;
   const [year, month, day] = roomArray[0].start
@@ -214,12 +215,12 @@ const isRoomAvailableInTime = (
       // slot is between the start and end times we want
       consecutiveSlots--;
       slotsInTime.push(availability);
-      // debug.log(
+      // context.log(
       //   `${start.toLocaleTimeString()} > ${slotStartTime.toLocaleTimeString()} > ${end.toLocaleTimeString()}`
       // );
     } else {
       // slot not in time, reset the counter, we don't need to reset the array because it won't be possible for us to get 2 sets of availabilies that are within time
-      // debug.log(`${slotStartTime.toLocaleTimeString()}`);
+      // context.log(`${slotStartTime.toLocaleTimeString()}`);
       consecutiveSlots = reservationRequest.slots30mins;
     }
   }
@@ -267,6 +268,7 @@ const LIBCAL_SUBMIT_TIMES_REGEX_CHECK = new RegExp(/Booking Details -/);
 
 const makeRequest = async (
   slotsToReserve: RoomAvailability[],
+  date: Date,
   page: Page,
   user: User,
   roomId: number
@@ -277,7 +279,7 @@ const makeRequest = async (
     const submitButton = await page.waitForSelector("#submitButton");
 
     await userNameInput.type(user.loginUsername);
-    await passwordInput.type(user.loginPassword);
+    await passwordInput.type(decrypt(user.loginPassword));
     await submitButton.click({ delay: 300 });
 
     await page.waitForNavigation({ waitUntil: "networkidle0" });
@@ -324,7 +326,7 @@ const makeRequest = async (
     LIBCAL_SUBMIT_TIMES_REGEX_CHECK
   );
   if (!atConfirmationPage) {
-    // page.screenshot({path: "hello", fullPage: true, type: "png"});
+    page.screenshot({path: "hello", fullPage: true, type: "png"});
     throw new Error("Not at confirmation page");
   }
 
@@ -335,6 +337,7 @@ const makeRequest = async (
   const dateSinceEpoch = daySinceEpoch(dateFromReservation(slotsToReserve));
   const reservation = await createReservation(prisma, {
     daySinceEpoch: dateSinceEpoch,
+    date: date,
     roomId: roomId,
     userId: user.id,
   });
