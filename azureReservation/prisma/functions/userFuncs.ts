@@ -47,8 +47,8 @@ export const findUser = async (client: PrismaClient, args: {id: string}) => {
 
 export const findUserForReservation = async (client: PrismaClient, args: {username: string}) => {
   const user = await client.user.findUnique({ where: {loginUsername: args.username} })
-  // if (!user || user.lastRequestTime?.getTime() + (1000 * 60 * 60 * 12) > Date.now()) {
-  if (!user || user.lastRequestTime?.getTime() > Date.now()) {
+  if (!user || user.lastRequestTime?.getTime() + (1000 * 60 * 60 * 12) > Date.now()) {
+  // if (!user || user.lastRequestTime?.getTime() > Date.now()) {
     return undefined
   }
   await client.user.update({

@@ -1,5 +1,9 @@
 import HeroBoxes from '@/components/HeroBoxes';
-export default function Home() {
+
+export default async function Home() {
+
+  const data: { count: number } = await (await fetch(`http://localhost:3000/api/stats?search=reservations`, {next: { revalidate: 300}})).json();
+
   return (
     <>
       <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold pb-4 xl:pb-20">Finally, a way to be the <strong className="text-accent">master</strong> of the library</h1>
@@ -16,7 +20,15 @@ export default function Home() {
             Experience the convenience and reliability of Room Master as it simplifies your library room booking experience like never before.
           </p>
         </div>
-        <HeroBoxes/>
+        <div>
+        <div className="stats shadow mb-4 w-full">
+          <div className="stat">
+            <div className="stat-title">Total Reservations</div>
+            <div className="stat-value">{data.count.toLocaleString("en-US")}</div>
+          </div>
+        </div>
+          <HeroBoxes/>
+        </div>
       </div>
     </>
   );
