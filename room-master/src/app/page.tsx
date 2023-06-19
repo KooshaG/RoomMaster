@@ -3,7 +3,7 @@ import HeroBoxes from '@/components/HeroBoxes';
 export default async function Home() {
 
   const res = await fetch(`https://${process.env.VERCEL_URL}/api/stats?search=reservations`, {next: { revalidate: 300}});
-  const data: {count: number} = await res.json() || 0; 
+  const data: {count: number} = await res.json().catch(() => console.log("error happened")) || 0; 
 
   return (
     <>
