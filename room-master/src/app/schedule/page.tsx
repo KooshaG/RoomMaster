@@ -7,7 +7,9 @@ import ScheduleController from "@/components/Schedule/ScheduleController";
 export default async function Schedule() {
   const session = await getServerSession(authOptions);
   if (session && session.user.id) {
-    const reservationRequests = await prisma.reservationRequest.findMany();
+    const reservationRequests = await prisma.reservationRequest.findMany({
+      where: { userId: session.user.id }
+    });
   
   return (
   <div className="flex flex-col justify-center">
