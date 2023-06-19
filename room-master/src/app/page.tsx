@@ -2,7 +2,7 @@ import HeroBoxes from '@/components/HeroBoxes';
 
 export default async function Home() {
 
-  const data: { count: number } = await (await fetch(`http://localhost:3000/api/stats?search=reservations`, {next: { revalidate: 300}})).json();
+  const data: { count: number } = await (await fetch(`/api/stats?search=reservations`, {next: { revalidate: 300}})).json();
 
   return (
     <>
