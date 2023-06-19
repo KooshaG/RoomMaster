@@ -2,9 +2,9 @@ import HeroBoxes from '@/components/HeroBoxes';
 
 export default async function Home() {
 
-  const res = await fetch(`/api/stats?search=reservations`, {next: { revalidate: 300}});
-  const data: {count: number} = await res.json() || 0; 
-
+  // const res = await fetch(`${process.env.VERCEL_URL}/api/stats?search=reservations`, {next: { revalidate: 300}});
+  // const data: {count: number} = await res.json() || 0; 
+  const data = {count: 0}
   return (
     <>
       <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold pb-4 xl:pb-20">Finally, a way to be the <strong className="text-accent">master</strong> of the library</h1>
