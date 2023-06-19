@@ -24,7 +24,7 @@ export default async function Home() {
         <div>
         <div className="stats shadow mb-4 w-full">
           <div className="stat">
-            <div className="stat-title">Total Reservations</div>
+            <div className="stat-title">Total Reservations Made By Room Master</div>
             <div className="stat-value">{data?.count?.toLocaleString("en-US") || 0}</div>
           </div>
         </div>
