@@ -1,0 +1,14 @@
+{
+    "name": "Room Master",
+    "short_name": "RM",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "120x120",
+            "type": "image/ico"
+        }
+    ],
+    "theme_color": "#004000",
+    "background_color": "#F0EAD6",
+    "display": "standalone"
+}

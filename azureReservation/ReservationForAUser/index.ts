@@ -88,7 +88,7 @@ const reserve = async (context: Context, username: string) => {
           daySinceEpoch: daySinceEpoch(dateFromReservation(availableRoom)),
         });
         if (!reservationCheck) {
-          const res = await makeRequest(availableRoom, day, page, user, roomId);
+          const res = await makeRequest(availableRoom, reservationRequest, day, page, user, roomId);
           context.log(
             `Reservation made on ${day.toLocaleDateString()} for ${
               user.loginUsername
@@ -268,6 +268,7 @@ const LIBCAL_SUBMIT_TIMES_REGEX_CHECK = new RegExp(/Booking Details -/);
 
 const makeRequest = async (
   slotsToReserve: RoomAvailability[],
+  reservationRequest: ReservationRequest,
   date: Date,
   page: Page,
   user: User,
@@ -340,6 +341,8 @@ const makeRequest = async (
     date: date,
     roomId: roomId,
     userId: user.id,
+    startTime: reservationRequest.startTime,
+    endTime: reservationRequest.endTime
   });
 
   // await page.goto(

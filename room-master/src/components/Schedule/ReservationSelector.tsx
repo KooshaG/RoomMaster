@@ -2,6 +2,7 @@
 import { type ChangeEvent, useState, type SetStateAction, type Dispatch, useEffect } from 'react';
 import { fullTimes } from '@/lib/reservationConst';
 import { type ReservationRequest } from '@prisma/client';
+import convert from '@/lib/timeConvert';
 
 type Props = {
   days: Day[];
@@ -131,19 +132,19 @@ export default function ReservationSelector({ days, setDays, reservatonRequest, 
       >
         <option disabled>Start Time</option>
         {fullTimes.slice(0, fullTimes.length - 1).map((time) => (
-          <option key={time} value={time}>{`${time.split(':')[0]}:${time.split(':')[1]}`}</option>
+          <option key={time} value={time}>{convert(time)}</option>
         ))}
       </select>
 
       <select
-        value={selectedEnd.endsWith("00") ? selectedEnd.substring(0, selectedEnd.length - 3) : selectedEnd}
+        value={selectedEnd.endsWith("M") ? convert(selectedEnd) : selectedEnd}
         disabled={selectedStart === 'Start Time'}
         onChange={(e) => setSelectedEnd(availableEndTimes[e.target.options.selectedIndex - 1])}
         className='select select-bordered w-full sm:w-[20rem]'
       >
         <option disabled>End Time</option>
         {availableEndTimes.map((time) => (
-          <option key={time}>{`${time.split(':')[0]}:${time.split(':')[1]}`}</option>
+          <option key={time} value={time}>{convert(time)}</option>
         ))}
       </select>
     </div>

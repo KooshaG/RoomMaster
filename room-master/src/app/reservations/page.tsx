@@ -1,6 +1,7 @@
 import { prisma } from '@/prismaClient';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/route';
+import convert from '@/lib/timeConvert';
 
 export default async function Schedule() {
   const session = await getServerSession(authOptions);
@@ -14,6 +15,8 @@ export default async function Schedule() {
               <th>Reservation ID</th>
               <th>Room Name</th>
               <th>Reservation Date</th>
+              <th>Start Time</th>
+              <th>End Time</th>
             </tr>
           </thead>
           <tbody>
@@ -22,6 +25,8 @@ export default async function Schedule() {
                 <td>{reservation.id ?? "null"}</td>
                 <td>{reservation.room.name ?? "null"}</td>
                 <td>{reservation.date.toLocaleDateString("en-CA", {weekday: 'long', month: 'long', day: '2-digit'})}</td>
+                <td>{convert(reservation.startTime)}</td>
+                <td>{convert(reservation.endTime)}</td>
               </tr>;
             })}
           </tbody>
