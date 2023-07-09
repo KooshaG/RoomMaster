@@ -11,7 +11,7 @@ The website is mostly functional and the bot works pretty reliably at this point
 
 ## The Bot
 The actual business logic in this application isn't built in to the website at all. It instead leverages timer functions in Azure that make the reservation script run every 2 hours. 
-The initial script will gather all the users that are [verified](#Verification?) and check if they have made an attempt to make a reservation in the past 12 hours. If the user is verified and hasn't made a request in the past 12 hours, the script will trigger another function to make the reservations on behalf of the user.
+The initial script will gather all the users that are [verified](#verification) and check if they have made an attempt to make a reservation in the past 12 hours. If the user is verified and hasn't made a request in the past 12 hours, the script will trigger another function to make the reservations on behalf of the user.
 
 ### Tech Used
 - Javascript
