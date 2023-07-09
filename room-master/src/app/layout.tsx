@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <NextAuthProvider>
         <body className={`min-h-screen  ${inter.className}`}>
           <NavBar/>
-          <main className="flex flex-col p-6 sm:p-24 text-center md:text-left">
+          <main className="flex flex-col min-h-[85vh] p-6 sm:p-24 text-center md:text-left">
             {children}
           </main>
           <footer className="footer p-10 bg-base-dark text-neutral">
