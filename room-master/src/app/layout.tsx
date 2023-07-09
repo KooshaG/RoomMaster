@@ -39,11 +39,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang='en'>
       <NextAuthProvider>
-        <body className={`min-h-screen  ${inter.className}`}>
-          <NavBar/>
-          <main className="flex flex-col min-h-[85vh] p-6 sm:p-24 text-center md:text-left">
-            {children}
-          </main>
+        <body className={`min-h-screen flex flex-col justify-between  ${inter.className}`}>
+          <div>
+            <NavBar/>
+            <main className="flex flex-col mb-auto p-6 sm:p-24 text-center md:text-left">
+              {children}
+            </main>
+          </div>
           <footer className="footer p-10 bg-base-dark text-neutral">
             <div>
               <Link href="https://koosha.dev">Made with ❤ (and a lot of frustration) by KooshaG</Link>
