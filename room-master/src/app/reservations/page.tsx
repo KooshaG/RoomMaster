@@ -9,7 +9,7 @@ export default async function Schedule() {
     const reservations = await prisma.reservation.findMany({ where: { userId: session.user.id }, include: { room: true }, orderBy: { date: 'desc'}});
 
       return (
-        <table className='table table-pin-cols overflow-x-auto'>
+        <table className='table table-pin-cols overflow-x-auto -z-10'>
           <thead>
             <tr>
               <th>Reservation ID</th>
