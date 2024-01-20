@@ -18,7 +18,6 @@ export default function ReservationEntry(props: ReservationEntryProps) {
 
   // determine if the reservation is today (0), in the future (>0), or in the past (<0)
   const today = new Date();
-  today.setMinutes(today.getMinutes() + today.getTimezoneOffset());
   const reservationDate = props.reservation.date;
   reservationDate.setMinutes(reservationDate.getMinutes() + reservationDate.getTimezoneOffset())
   const daysFromToday = dateDiff(today, reservationDate);
