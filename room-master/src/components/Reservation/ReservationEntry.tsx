@@ -21,17 +21,14 @@ const dateDiff = (date1: Date, date2: Date) => {
 export default function ReservationEntry(props: ReservationEntryProps) {
 
   // determine if the reservation is today (0), in the future (>0), or in the past (<0)
-  const today = new Date();
-  const reservationDate = props.reservation.date;
-  reservationDate.setMinutes(reservationDate.getMinutes() + reservationDate.getTimezoneOffset())
-  const daysFromToday = dateDiff(today, reservationDate);
+  const daysFromToday = dateDiff(new Date(), props.reservation.date);
 
   return (
     <tr className='hover'>
       <td>{props.reservation.id ?? "null"}</td>
       <td className="text-center"><ReservationBadge days={daysFromToday}/></td>
       <td>{props.reservation.room.name ?? "null"}</td>
-      <td>{reservationDate.toLocaleString("en-CA", {weekday: 'long', month: 'long', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'})}</td>
+      <td>{props.reservation.date.toLocaleString("en-CA", {weekday: 'long', month: 'long', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'})}</td>
       <td>{convert(props.reservation.startTime)}</td>
       <td>{convert(props.reservation.endTime)}</td>
       <td>{daysFromToday > 0 && <RemoveReservationButton reservationId={props.reservation.id}/>}</td>
