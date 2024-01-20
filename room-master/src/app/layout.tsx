@@ -39,16 +39,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang='en'>
       <NextAuthProvider>
-        <body className={`min-h-screen flex flex-col justify-between  ${inter.className}`}>
+        <body className={`min-h-screen flex flex-col justify-between ${inter.className}`}>
           <div>
             <NavBar/>
-            <main className="flex flex-col mb-auto p-6 sm:p-24 text-center md:text-left">
+            <main className="flex flex-col mb-auto p-4 md:p-20 text-center md:text-left">
               {children}
             </main>
           </div>
           <footer className="footer p-10 bg-base-dark text-neutral">
-            <div>
+            <div className="flex flex-col">
               <Link href="https://koosha.dev">Made with ❤ (and a lot of frustration) by KooshaG</Link>
+              <div>Version {process.env.version}</div>
             </div>
             <div className="grid-flow-col gap-3 md:place-self-center md:justify-self-end">
               <Link href="https://koosha.dev"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256"><path fill="currentColor" d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24Zm-26.37 144h52.74C149 186.34 140 202.87 128 215.89c-12-13.02-21-29.55-26.37-47.89ZM98 152a145.72 145.72 0 0 1 0-48h60a145.72 145.72 0 0 1 0 48Zm-58-24a87.61 87.61 0 0 1 3.33-24h38.46a161.79 161.79 0 0 0 0 48H43.33A87.61 87.61 0 0 1 40 128Zm114.37-40h-52.74C107 69.66 116 53.13 128 40.11c12 13.02 21 29.55 26.37 47.89Zm19.84 16h38.46a88.15 88.15 0 0 1 0 48h-38.46a161.79 161.79 0 0 0 0-48Zm32.16-16h-35.43a142.39 142.39 0 0 0-20.26-45a88.37 88.37 0 0 1 55.69 45ZM105.32 43a142.39 142.39 0 0 0-20.26 45H49.63a88.37 88.37 0 0 1 55.69-45ZM49.63 168h35.43a142.39 142.39 0 0 0 20.26 45a88.37 88.37 0 0 1-55.69-45Zm101.05 45a142.39 142.39 0 0 0 20.26-45h35.43a88.37 88.37 0 0 1-55.69 45Z"/></svg></Link> 
