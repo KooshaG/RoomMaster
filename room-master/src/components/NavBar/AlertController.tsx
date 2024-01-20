@@ -30,51 +30,6 @@ export default async function AlertController() {
     alerts.push(alert);
   }
 
-  if (!session) {
-    const today = new Date();
-    today.setHours(today.getHours() - 5); // correct for tz
-    today.setHours(0);
-    today.setMinutes(0);
-    today.setSeconds(0);
-    console.log(today);
-    console.log(today.getTimezoneOffset())
-    const reservation = await prisma.reservation.findFirst({
-      where: {
-        userId: "clixb60s300002xdwfogq7ahg",
-        date: { gte: today },
-      },
-      include: {
-        room: { select: { name: true } },
-      },
-      orderBy: {
-        date: 'asc',
-      },
-    });
-    if (reservation) {
-      // check if the first reservation is today (reservations are max 14 days in advance so checking just the day is okay)
-      if (today.getDay() === reservation.date.getDay()) {
-        const alert: Alert = {
-          level: 'success',
-          message: `You have a reservation today from ${timeConvert(reservation.startTime)} to ${timeConvert(
-            reservation.endTime
-          )} at ${reservation.room.name}`,
-        };
-        alerts.push(alert);
-      } else {
-        const alert: Alert = {
-          level: 'info',
-          message: `You have an upcoming reservation on ${reservation.date.toLocaleDateString(undefined, {
-            month: 'long',
-            day: 'numeric',
-          })} from ${timeConvert(reservation.startTime)} to ${timeConvert(reservation.endTime)} at ${
-            reservation.room.name
-          }`,
-        };
-        alerts.push(alert);
-      }
-    }
-  }
-
   // get user upcoming reservations
   if (session && session.user.id) {
     const today = new Date();
