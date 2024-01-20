@@ -2,7 +2,7 @@
 
 import { type Reservation, type Room } from "@prisma/client";
 import convert from '@/lib/timeConvert';
-import CancelReservationButton from "../button/CancelReservationButton";
+import RemoveReservationButton from "../button/RemoveReservationButton";
 
 interface ReservationEntryProps {
   reservation: Reservation & {room: Room}
@@ -27,7 +27,7 @@ export default function ReservationEntry(props: ReservationEntryProps) {
       <td>{props.reservation.date.toLocaleDateString("en-CA", {weekday: 'long', month: 'long', day: '2-digit', year: 'numeric'})}</td>
       <td>{convert(props.reservation.startTime)}</td>
       <td>{convert(props.reservation.endTime)}</td>
-      <td>{daysFromToday > 0 && <CancelReservationButton reservationId={props.reservation.id}/>}</td>
+      <td>{daysFromToday > 0 && <RemoveReservationButton reservationId={props.reservation.id}/>}</td>
     </tr>
   );
 }
