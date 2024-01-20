@@ -1,7 +1,6 @@
 import { prisma } from '@/prismaClient';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/route';
-import convert from '@/lib/timeConvert';
 import ReservationEntry from '@/components/Reservation/ReservationEntry';
 
 export default async function Reservations() {

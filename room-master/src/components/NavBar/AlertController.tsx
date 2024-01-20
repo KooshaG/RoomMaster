@@ -33,42 +33,57 @@ export default async function AlertController() {
   // get user upcoming reservations
   if (session && session.user.id) {
     const today = new Date();
-    today.setHours(today.getHours() - (today.getTimezoneOffset()/60)); // correct for tz
+    today.setHours(today.getHours() - today.getTimezoneOffset() / 60); // correct for tz
     today.setHours(0);
     today.setMinutes(0);
     today.setSeconds(0);
-    const reservation = await prisma.reservation.findFirst({ 
+    const reservation = await prisma.reservation.findFirst({
       where: {
         userId: session.user.id,
-        date: {gte: today}
+        date: { gte: today },
       },
       include: {
-        room: {select: {name: true}}
+        room: { select: { name: true } },
       },
       orderBy: {
-        date: "asc"
+        date: 'asc',
       },
     });
     if (reservation) {
       // check if the first reservation is today (reservations are max 14 days in advance so checking just the day is okay)
       if (today.getDay() === reservation.date.getDay()) {
-        const alert: Alert = {level: "success", message: `You have a reservation today from ${timeConvert(reservation.startTime)} to ${timeConvert(reservation.endTime)} at ${reservation.room.name}`}
+        const alert: Alert = {
+          level: 'success',
+          message: `You have a reservation today from ${timeConvert(reservation.startTime)} to ${timeConvert(
+            reservation.endTime
+          )} at ${reservation.room.name}`,
+        };
         alerts.push(alert);
-      }
-      else {
-        const alert: Alert = {level: "info", message: `You have an upcoming reservation on ${reservation.date.toLocaleDateString(undefined, {month: 'long', day: 'numeric'})} from ${timeConvert(reservation.startTime)} to ${timeConvert(reservation.endTime)} at ${reservation.room.name}`}
+      } else {
+        const alert: Alert = {
+          level: 'info',
+          message: `You have an upcoming reservation on ${reservation.date.toLocaleDateString(undefined, {
+            month: 'long',
+            day: 'numeric',
+          })} from ${timeConvert(reservation.startTime)} to ${timeConvert(reservation.endTime)} at ${
+            reservation.room.name
+          }`,
+        };
         alerts.push(alert);
       }
     }
-    
   }
 
   return (
     <>
       {alerts.map((alert, i) => {
-        const alertClass = `alert-${alert.level}`;
+        // idk why but this is the only way i got conditional classes working
         return (
-          <div key={i} className={`alert join-item ${alertClass}`}>
+          <div
+            key={i}
+            className={`alert join-item ${alert.level === 'info' ? 'alert-info' : ''}${alert.level === 'warning' ? 'alert-warning' : ''}
+            ${alert.level === 'error' ? 'alert-error' : ''}${alert.level === 'success' ? 'alert-success' : ''}`}
+          >
             <Icon name={alert.level} />
             <span>{alert.message}</span>
           </div>
