@@ -13,7 +13,7 @@ const dateDiff = (date1: Date, date2: Date) => {
   const diffDaysf = diffTime / (1000 * 60 * 60 * 24);
   if (diffDaysf > -7 && diffDaysf < 7) {
     // weird zone of this calculation, do manually
-    return (date2.getDate() - date2.getDate())
+    return (date2.getDate() - date1.getDate())
   }
   return Math.floor(diffDaysf);
 };
