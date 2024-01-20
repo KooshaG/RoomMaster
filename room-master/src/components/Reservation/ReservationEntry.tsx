@@ -28,7 +28,7 @@ export default function ReservationEntry(props: ReservationEntryProps) {
       <td>{props.reservation.id ?? "null"}</td>
       <td className="text-center"><ReservationBadge days={daysFromToday}/></td>
       <td>{props.reservation.room.name ?? "null"}</td>
-      <td>{props.reservation.date.toLocaleString("en-CA", {weekday: 'long', month: 'long', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'})}</td>
+      <td>{props.reservation.date.toLocaleDateString("en-CA", {weekday: 'long', month: 'long', day: '2-digit', year: 'numeric'})}</td>
       <td>{convert(props.reservation.startTime)}</td>
       <td>{convert(props.reservation.endTime)}</td>
       <td>{daysFromToday > 0 && <RemoveReservationButton reservationId={props.reservation.id}/>}</td>

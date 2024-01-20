@@ -30,51 +30,6 @@ export default async function AlertController() {
     alerts.push(alert);
   }
 
-  // get user upcoming reservations
-  if (!session) {
-    const today = new Date();
-    today.setHours(today.getHours() - 5); // correct for tz
-    today.setHours(5);
-    today.setMinutes(0);
-    today.setSeconds(0);
-    const reservation = await prisma.reservation.findFirst({
-      where: {
-        userId: "clixb60s300002xdwfogq7ahg",
-        date: { gte: today },
-      },
-      include: {
-        room: { select: { name: true } },
-      },
-      orderBy: {
-        date: 'asc',
-      },
-    });
-    if (reservation) {
-      const reservationDate = reservation.date
-      reservationDate.setHours(reservationDate.getHours() - 5);
-      // check if the first reservation is today (reservations are max 14 days in advance so checking just the day is okay)
-      if (today.getDate() === reservation.date.getDate()) {
-        const alert: Alert = {
-          level: 'success',
-          message: `You have a reservation today from ${timeConvert(reservation.startTime)} to ${timeConvert(
-            reservation.endTime
-          )} at ${reservation.room.name}`,
-        };
-        alerts.push(alert);
-      } else {
-        const alert: Alert = {
-          level: 'info',
-          message: `You have an upcoming reservation on ${reservation.date.toLocaleDateString(undefined, {
-            month: 'long',
-            day: 'numeric',
-          })} from ${timeConvert(reservation.startTime)} to ${timeConvert(reservation.endTime)} at ${
-            reservation.room.name
-          }`,
-        };
-        alerts.push(alert);
-      }
-    }
-  }
   if (session && session.user.id) {
     const today = new Date();
     today.setHours(today.getHours() - 5); // correct for tz
@@ -94,7 +49,7 @@ export default async function AlertController() {
       },
     });
     if (reservation) {
-      const reservationDate = reservation.date
+      const reservationDate = reservation.date;
       reservationDate.setHours(reservationDate.getHours() - 5);
       // check if the first reservation is today (reservations are max 14 days in advance so checking just the day is okay)
       if (today.getDate() === reservation.date.getDate()) {
@@ -127,7 +82,9 @@ export default async function AlertController() {
         return (
           <div
             key={i}
-            className={`alert join-item ${alert.level === 'info' ? 'alert-info' : ''}${alert.level === 'warning' ? 'alert-warning' : ''}
+            className={`alert join-item ${alert.level === 'info' ? 'alert-info' : ''}${
+              alert.level === 'warning' ? 'alert-warning' : ''
+            }
             ${alert.level === 'error' ? 'alert-error' : ''}${alert.level === 'success' ? 'alert-success' : ''}`}
           >
             <Icon name={alert.level} />
