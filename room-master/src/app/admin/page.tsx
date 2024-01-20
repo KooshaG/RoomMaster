@@ -9,34 +9,36 @@ export default async function Schedule() {
     const unverifiedUser = await prisma.user.findMany({ where: { verified: false }, orderBy: { createdAt: 'asc' } });
 
     return (
-      <table className='table table-pin-cols overflow-x-auto'>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>E-Mail</th>
-            <th>Concordia E-Mail</th>
-            <th>Created At</th>
-            <th>Verify</th>
-          </tr>
-        </thead>
-        <tbody>
-          {unverifiedUser.map((user) => {
-            return (
-              <tr key={user.id} className='hover'>
-                <td>{user.name ?? 'null'}</td>
-                <td>{user.email ?? 'null'}</td>
-                <td>{user.loginUsername ?? 'null'}</td>
-                <td>
-                  {user.createdAt.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: '2-digit' })}
-                </td>
-                <td>
-                  <VerifyUserButton userId={user.id} />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto">
+        <table className='table table-pin-cols'>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>E-Mail</th>
+              <th>Concordia E-Mail</th>
+              <th>Created At</th>
+              <th>Verify</th>
+            </tr>
+          </thead>
+          <tbody>
+            {unverifiedUser.map((user) => {
+              return (
+                <tr key={user.id} className='hover'>
+                  <td>{user.name ?? 'null'}</td>
+                  <td>{user.email ?? 'null'}</td>
+                  <td>{user.loginUsername ?? 'null'}</td>
+                  <td>
+                    {user.createdAt.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: '2-digit' })}
+                  </td>
+                  <td>
+                    <VerifyUserButton userId={user.id} />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     );
   }
   return <p>o no</p>;

@@ -2,37 +2,35 @@ import { prisma } from '@/prismaClient';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/route';
 import convert from '@/lib/timeConvert';
+import ReservationEntry from '@/components/Reservation/ReservationEntry';
 
-export default async function Schedule() {
+export default async function Reservations() {
   const session = await getServerSession(authOptions);
   if (session && session.user.id) {
     const reservations = await prisma.reservation.findMany({ where: { userId: session.user.id }, include: { room: true }, orderBy: { date: 'desc'}});
 
       return (
-        <table className='table table-pin-cols overflow-x-auto -z-10'>
-          <thead>
-            <tr>
-              <th>Reservation ID</th>
-              <th>Room Name</th>
-              <th>Reservation Date</th>
-              <th>Start Time</th>
-              <th>End Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reservations.map((reservation) => {
-              return <tr key={reservation.id} className='hover'>
-                <td>{reservation.id ?? "null"}</td>
-                <td>{reservation.room.name ?? "null"}</td>
-                <td>{reservation.date.toLocaleDateString("en-CA", {weekday: 'long', month: 'long', day: '2-digit'})}</td>
-                <td>{convert(reservation.startTime)}</td>
-                <td>{convert(reservation.endTime)}</td>
-              </tr>;
-            })}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className='table table-pin-cols pt-10'>
+            <thead>
+              <tr>
+                <th className='z-0'>Reservation ID</th>
+                <th className='text-center'>Status</th>
+                <th className='z-0'>Room Name</th>
+                <th className='z-0'>Reservation Date</th>
+                <th className='z-0'>Start Time</th>
+                <th className='z-0'>End Time</th>
+                <th className='z-0'></th>
+              </tr>
+            </thead>
+            <tbody>
+              {reservations.map((reservation) => {
+                return <ReservationEntry key={reservation.id} reservation={reservation}/>;
+              })}
+            </tbody>
+          </table>
+        </div>
       );
-    // TODO: add tags to the table for better readability (upcoming/past/today...)
   }
   return <p>o no</p>;
 }

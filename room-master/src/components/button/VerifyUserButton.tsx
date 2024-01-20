@@ -23,7 +23,7 @@ export default function VerifyUserButton({ userId }: Props) {
   }
 
   return (
-    <button className={`btn ${verified ? 'btn-disabled btn-outline' : 'btn-primary'}`} onClick={handleVerification}>
+    <button className={`btn btn-sm ${verified ? 'btn-disabled btn-outline' : 'btn-primary'}`} onClick={handleVerification}>
       {verified ? 'Verified' : 'Verify'}
     </button>
   );

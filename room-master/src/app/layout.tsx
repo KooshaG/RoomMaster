@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body className={`min-h-screen flex flex-col justify-between  ${inter.className}`}>
           <div>
             <NavBar/>
-            <main className="flex flex-col mb-auto p-6 sm:p-24 text-center md:text-left">
+            <main className="flex flex-col mb-auto p-4 md:p-20 text-center md:text-left">
               {children}
             </main>
           </div>
