@@ -51,7 +51,7 @@ export default async function AlertController() {
     });
     if (reservation) {
       // check if the first reservation is today (reservations are max 14 days in advance so checking just the day is okay)
-      if (today.getDay() === reservation.date.getDay()) {
+      if (today.getDate() === reservation.date.getDate()) {
         const alert: Alert = {
           level: 'success',
           message: `You have a reservation today from ${timeConvert(reservation.startTime)} to ${timeConvert(
