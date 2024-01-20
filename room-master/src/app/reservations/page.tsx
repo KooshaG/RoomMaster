@@ -1,7 +1,10 @@
+import dynamic from 'next/dynamic';
 import { prisma } from '@/prismaClient';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/route';
-import ReservationEntry from '@/components/Reservation/ReservationEntry';
+
+const ReservationEntry = dynamic(() => import('@/components/Reservation/ReservationEntry'), {ssr: false});
+
 
 export default async function Reservations() {
   const session = await getServerSession(authOptions);

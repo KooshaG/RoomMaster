@@ -37,8 +37,6 @@ export default async function AlertController() {
     today.setHours(0);
     today.setMinutes(0);
     today.setSeconds(0);
-    console.log(today);
-    console.log(today.getTimezoneOffset())
     const reservation = await prisma.reservation.findFirst({
       where: {
         userId: session.user.id,
