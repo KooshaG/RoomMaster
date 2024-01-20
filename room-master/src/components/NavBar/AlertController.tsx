@@ -92,6 +92,8 @@ export default async function AlertController() {
       },
     });
     if (reservation) {
+      const reservationDate = reservation.date
+      reservationDate.setHours(reservationDate.getHours() - 5);
       // check if the first reservation is today (reservations are max 14 days in advance so checking just the day is okay)
       if (today.getDate() === reservation.date.getDate()) {
         const alert: Alert = {
