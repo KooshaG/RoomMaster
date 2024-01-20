@@ -34,7 +34,7 @@ export default async function AlertController() {
   if (!session) {
     const today = new Date();
     today.setHours(today.getHours() - 5); // correct for tz
-    today.setHours(0);
+    today.setHours(5);
     today.setMinutes(0);
     today.setSeconds(0);
     const reservation = await prisma.reservation.findFirst({
@@ -78,7 +78,7 @@ export default async function AlertController() {
   if (session && session.user.id) {
     const today = new Date();
     today.setHours(today.getHours() - 5); // correct for tz
-    today.setHours(0);
+    today.setHours(5);
     today.setMinutes(0);
     today.setSeconds(0);
     const reservation = await prisma.reservation.findFirst({
