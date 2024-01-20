@@ -32,7 +32,7 @@ export default async function AlertController() {
 
   if (!session) {
     const today = new Date();
-    today.setHours(today.getHours() - today.getTimezoneOffset() / 60); // correct for tz
+    today.setHours(today.getHours() - 5); // correct for tz
     today.setHours(0);
     today.setMinutes(0);
     today.setSeconds(0);
