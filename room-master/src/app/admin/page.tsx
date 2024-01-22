@@ -10,7 +10,7 @@ export default async function Schedule() {
 
     return (
       <div className="overflow-x-auto">
-        <table className='table table-pin-cols'>
+        <table className='table'>
           <thead>
             <tr>
               <th>Name</th>

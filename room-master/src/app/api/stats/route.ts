@@ -10,7 +10,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Invalid search parameters'}, { status: 404 });
   }
   if (search === 'reservations') {
-    const num = await prisma.reservation.count();
+    const num = (await prisma.reservation.findFirst({ 
+      orderBy: {id: 'desc'},
+      select: {id: true}
+    }))?.id ?? 0
+    
+    // const num = await prisma.reservation.count();
     return NextResponse.json({ count: num }, { status: 200 });
   }
 
