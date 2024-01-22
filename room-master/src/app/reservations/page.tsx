@@ -13,7 +13,7 @@ export default async function Reservations() {
 
       return (
         <div className="overflow-x-auto">
-          <table className='table table-pin-cols pt-10'>
+          <table className='table pt-10'>
             <thead>
               <tr>
                 <th className='z-0'>Reservation ID</th>
