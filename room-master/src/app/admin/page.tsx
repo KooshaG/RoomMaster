@@ -1,45 +1,20 @@
-import { prisma } from '@/prismaClient';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../api/auth/[...nextauth]/route';
-import VerifyUserButton from '@/components/button/VerifyUserButton';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { redirect } from 'next/navigation';
+import LinkButton from '@/components/button/LinkButton';
+import ScheduleView from '@/components/Schedule/ScheduleView';
 
-export default async function Schedule() {
+export default async function Admin() {
   const session = await getServerSession(authOptions);
   if (session && session.user.id && session.user.admin) {
-    const unverifiedUser = await prisma.user.findMany({ where: { verified: false }, orderBy: { createdAt: 'asc' } });
 
     return (
-      <div className="overflow-x-auto">
-        <table className='table'>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>E-Mail</th>
-              <th>Concordia E-Mail</th>
-              <th>Created At</th>
-              <th>Verify</th>
-            </tr>
-          </thead>
-          <tbody>
-            {unverifiedUser.map((user) => {
-              return (
-                <tr key={user.id} className='hover'>
-                  <td>{user.name ?? 'null'}</td>
-                  <td>{user.email ?? 'null'}</td>
-                  <td>{user.loginUsername ?? 'null'}</td>
-                  <td>
-                    {user.createdAt.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: '2-digit' })}
-                  </td>
-                  <td>
-                    <VerifyUserButton userId={user.id} />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="flex flex-col gap-4 items-center w-80 m-auto">
+        <LinkButton href='/admin/verify'>Verify Users</LinkButton>
+        <LinkButton href='/admin/users'>View Users</LinkButton>
+        {/* <LinkButton href='/admin/log'>Audit Log</LinkButton> */}
       </div>
     );
   }
-  return <p>o no</p>;
+  return redirect('/');
 }
