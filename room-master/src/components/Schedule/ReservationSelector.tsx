@@ -67,7 +67,7 @@ export default function ReservationSelector({ days, setDays, reservatonRequest, 
 
   useEffect(() => {
     // set day if reservation request already exists
-    if (reservatonRequest && reservatonRequest.dow && reservatonRequest.iso_weekday) {
+    if (reservatonRequest && reservatonRequest.dow && (reservatonRequest.iso_weekday || reservatonRequest.iso_weekday === 0)) {
       const dayIndex = reservatonRequest.iso_weekday;
       setSelectedDay({ ...days[dayIndex], selected: true });
       setDays((curr) => [

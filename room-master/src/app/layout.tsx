@@ -39,8 +39,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang='en'>
       <NextAuthProvider>
-        <body className={`min-h-screen flex flex-col justify-between ${inter.className}`}>
-          <div>
+        <body className={`flex flex-col justify-between ${inter.className}`}>
+          <div className='min-h-screen'>
             <NavBar/>
             <main className="flex flex-col mb-auto p-4 md:p-20 text-center md:text-left">
               {children}
