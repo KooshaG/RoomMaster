@@ -46,7 +46,7 @@ export default function UserStatusToggle({ user }: Props) {
       </label>
       <label className="label cursor-pointer">
         <span className="label-text text-base font-semibold">Admin</span>
-        <input id="admin" type="checkbox" className="toggle toggle-primary" checked={admin} />
+        <input id="admin" type="checkbox" className="toggle toggle-primary" checked={admin} onClick={handleToggle}/>
       </label>
     </div>
   )
