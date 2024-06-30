@@ -4,6 +4,7 @@ import { type ReservationRequest } from "@prisma/client";
 import { days } from "@/lib/reservationConst";
 import { useEffect, useState, useRef } from "react";
 import ReservationSelector from "./ReservationSelector";
+import { useRouter } from "next/navigation";
 
 type Props = {
   reservationRequests: ReservationRequest[]
@@ -21,6 +22,8 @@ export default function ScheduleController({reservationRequests}: Props) {
   const [toastVisible, setToastVisible] = useState<boolean>(false);
 
   const timeoutID = useRef<NodeJS.Timeout>();
+
+  const router = useRouter();
 
   // check that the reservation schedule is valid
   useEffect(() => {
@@ -62,6 +65,7 @@ export default function ScheduleController({reservationRequests}: Props) {
       setToastVisible(true);
       timeoutID.current = setTimeout(() => setToastVisible(false), 2000);
     }
+    router.refresh();
   }
 
   return (
